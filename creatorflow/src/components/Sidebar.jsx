@@ -3,6 +3,7 @@ import {
   Megaphone,
   Wallet,
   Settings,
+  Calendar,
 } from "lucide-react";
 import { Outlet } from "react-router";
 import React from "react";
@@ -51,6 +52,15 @@ const Sidebar = ({onClose}) => {
         className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
           <Wallet className="w-5 h-5" />
           <span>Earnings</span>
+        </button></Link>
+
+         <Link
+        to="calender">
+        <button 
+        onClick={onClose}
+        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+          <Calendar className="w-5 h-5" />
+          <span>Calender</span>
         </button></Link>
 
         {/* Settings */}

@@ -1,10 +1,12 @@
 import React from "react";
+import { useState } from "react";
 import { Plus, ChevronDown, ArrowRight, Copy } from "lucide-react";
 
 
 
+
 const Promotions = () => {
-   
+   const [addPromotion, setAddPromotion]= useState(false);
   return (
     <div className="min-h-screen bg-white px-8 py-8">
       
@@ -16,6 +18,9 @@ const Promotions = () => {
         </h1>
 
         <button
+        onClick={()=>
+          setAddPromotion(true)
+        }
           className="
             flex items-center gap-2
             px-5 py-3
@@ -288,6 +293,100 @@ const Promotions = () => {
 
 </div>
  
+ {addPromotion && (  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+
+    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold">
+          Add Promotion
+        </h2>
+
+        <button
+          onClick={() => setAddPromotion(false)}
+          className="text-gray-400 hover:text-gray-700 text-2xl"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Form */}
+      <div className="space-y-4">
+
+        {/* Brand */}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Brand
+          </label>
+
+          <input
+            type="text"
+            placeholder="e.g. Nike"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {/* Platform */}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Platform
+          </label>
+
+          <input
+            type="text"
+            placeholder="e.g. Instagram"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {/* Amount */}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Amount
+          </label>
+
+          <input
+            type="number"
+            placeholder="e.g. 30000"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {/* Due Date */}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Due Date
+          </label>
+
+          <input
+            type="date"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+        </div>
+
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 mt-6">
+
+        <button
+          onClick={() => setAddPromotion(false)}
+          className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+
+        <button
+          className="px-5 py-2.5 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600"
+        >
+          Add Promotion
+        </button>
+
+      </div>
+
+    </div>
+  </div>)}
 
     </div>
   );

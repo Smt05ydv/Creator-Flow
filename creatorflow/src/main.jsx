@@ -9,6 +9,7 @@ import Promotions from './pages/Promotions.jsx'
 import Earnings from './pages/Earnings.jsx'
 import  Sidebar from './components/Sidebar.jsx'
 import Layout from './components/Layout.jsx'
+import  Calendar  from './pages/Calender.jsx'
 
 const router= createBrowserRouter(createRoutesFromElements (
   <Route path = '/' element= {<Layout/>}>
@@ -17,6 +18,11 @@ const router= createBrowserRouter(createRoutesFromElements (
     <Route
         path="earnings"
         element={<Earnings />}
+      />
+
+      <Route
+        path="calender"
+        element={<Calendar />}
       />
 
 
