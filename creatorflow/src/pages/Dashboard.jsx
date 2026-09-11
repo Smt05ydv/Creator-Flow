@@ -4,7 +4,7 @@ import { User, Bell, Menu,  } from "lucide-react";
 import {Outlet} from 'react-router'
 import Promotions from './Promotions';
 import Sidebar from '../components/Sidebar.jsx';
-
+import { Link } from 'react-router';
 const Dashboard = () => {
     const[sidebarOpen,setSidebarOpen] = useState(false)
     
@@ -48,8 +48,12 @@ const Dashboard = () => {
 
 
         {/* Promotions */}
+        <Link
+        to = "promotions">
         <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-          <p className="text-sm font-medium text-gray-500">
+          <p className="text-sm font-medium text-gray-500"
+          >
+            
             Promotions
           </p>
 
@@ -63,6 +67,8 @@ const Dashboard = () => {
             </span>
           </div>
         </div>
+        </Link>
+
 
 
         {/* Pending */}

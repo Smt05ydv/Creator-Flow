@@ -57,6 +57,26 @@ const Promotions = () => {
 
     setAddDeliverables(updatedDeliverables)
    }
+
+   function saveCard(){
+
+    const newPromotion = {
+  id: Date.now(),
+  brand: addCard.brand,
+  platform: addCard.platform,
+  amount: addCard.amount,
+  dueDate: addCard.dueDate,
+  payment: "Pending",
+  deliverables: []
+};
+
+    setPromotionList([
+      ...promotionList,
+      newPromotion ]
+
+    )
+    setAddPromotion(false)
+   }
    
 
    function saveChanges() {
@@ -180,6 +200,7 @@ const Promotions = () => {
 
             <h2 className="text-lg font-semibold">
               {promotion.brand}
+             
             </h2>
 
             <button className="text-gray-400 hover:text-gray-600">
@@ -192,6 +213,7 @@ const Promotions = () => {
           {/* Platform */}
           <p className="mt-2 text-gray-600">
               {promotion.platform}
+             
           </p>
 
 
@@ -311,11 +333,19 @@ const Promotions = () => {
           <label className="block mb-1 text-sm font-medium">
             Brand
           </label>
-
-          <input
+                 
+         <input
             type="text"
             placeholder="e.g. Nike"
             className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+            value={addCard.brand}
+            onChange={(e)=>setAddCard(
+              {
+                ...addCard,
+                brand:e.target.value
+              }
+            )}
+            
           />
         </div>
 
@@ -329,6 +359,14 @@ const Promotions = () => {
             type="text"
             placeholder="e.g. Instagram"
             className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+            value={addCard.platform}
+            onChange={(e)=>setAddCard(
+              {
+                ...addCard,
+                platform:e.target.value
+              }
+            )}
+            
           />
         </div>
 
@@ -339,9 +377,17 @@ const Promotions = () => {
           </label>
 
           <input
-            type="number"
-            placeholder="e.g. 30000"
+            type="text"
+            placeholder="e.g. ₹30000"
             className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+            value={addCard.amount}
+            onChange={(e)=>setAddCard(
+              {
+                ...addCard,
+                amount:e.target.value
+              }
+            )}
+            
           />
         </div>
 
@@ -353,23 +399,34 @@ const Promotions = () => {
 
           <input
             type="date"
+           
             className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+            value={addCard.dueDate}
+            onChange={(e)=>setAddCard(
+              {
+                ...addCard,
+                dueDate:e.target.value
+              }
+            )}
+            
           />
-        </div>
 
+
+      </div> 
       </div>
 
       {/* Buttons */}
       <div className="flex justify-end gap-3 mt-6">
 
         <button
-          onClick={() => setAddPromotion(true)}
+          onClick={() => setAddPromotion(false)}
           className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100"
         >
           Cancel
         </button>
 
         <button
+        onClick={saveCard}
 
       
           className="px-5 py-2.5 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600"
@@ -379,9 +436,9 @@ const Promotions = () => {
 
       </div>
 
-    </div>
-  </div>)}
-
+    </div> 
+    </div> 
+ )}
   {editOpen && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
 
@@ -679,7 +736,7 @@ const Promotions = () => {
   </div>
 )}
     </div>
-  );
+  )
 };
 
 export default Promotions;
