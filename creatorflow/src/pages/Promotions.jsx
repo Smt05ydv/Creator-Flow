@@ -2,6 +2,10 @@ import React from "react";
 import { useState } from "react";
 import { Plus, ChevronDown, ArrowRight, Copy,Pencil } from "lucide-react";
 
+import { promotions } from "../data/data";
+
+
+
 
 
 
@@ -9,6 +13,35 @@ const Promotions = () => {
    const [addPromotion, setAddPromotion]= useState(false);
    const [editOpen,setEditOpen]= useState(false);
    const [addDeliverables,setAddDeliverables]= useState([]);
+   const [selectedPromotion,setSelectedPromotion] = useState(null);
+   const [editForm,setEditForm] = useState({
+    platform: "",
+    campaign: "",
+    amount:"",
+    dueDate:"",
+    deliverable:[],
+    payment:""
+
+   });
+
+   const [addCard,setAddCard] = useState({
+    brand:"",
+    brand:"",
+    amount:"",
+    dueDate:"",
+
+   });
+
+
+   
+
+   
+  
+
+
+
+   
+   const [promotionList,setPromotionList] = useState(promotions)
    function addNewDeliverable() {
     setAddDeliverables([...addDeliverables,""]);
    }
@@ -16,7 +49,33 @@ const Promotions = () => {
    function removeNewDeliverable(index){
     setAddDeliverables(addDeliverables.filter((deliverable,i)=>i!==index)
    )}
-  
+
+   function handleDeliverableChange(index,value) {
+
+    const updatedDeliverables=[...addDeliverables];
+    updatedDeliverables[index]=value;
+
+    setAddDeliverables(updatedDeliverables)
+   }
+   
+
+   function saveChanges() {
+      setPromotionList(
+        promotionList.map((promotion)=>
+          promotion.id === selectedPromotion.id
+          ? {
+             ...promotion,
+            platform: editForm.platform,
+            campaign: editForm.campaign,
+            amount: editForm.amount,
+            dueDate: editForm.dueDate,
+            deliverables: editForm.deliverables,
+            payment: editForm.payment
+          } : promotion
+        )
+      );
+      setEditOpen(false);
+   }
 
    
 
@@ -101,8 +160,12 @@ const Promotions = () => {
 
       {/* Promotion Card */}
       <div className="mt-10 max-w-3xl">
+      {promotionList.map((promotion)=>(
+
+     
 
         <div
+        key={promotion.id}
           className="
             rounded-xl
             border border-gray-200
@@ -116,7 +179,7 @@ const Promotions = () => {
           <div className="flex items-center justify-between">
 
             <h2 className="text-lg font-semibold">
-              Nike
+              {promotion.brand}
             </h2>
 
             <button className="text-gray-400 hover:text-gray-600">
@@ -128,7 +191,7 @@ const Promotions = () => {
 
           {/* Platform */}
           <p className="mt-2 text-gray-600">
-            Instagram Reel
+              {promotion.platform}
           </p>
 
 
@@ -136,11 +199,11 @@ const Promotions = () => {
           <div className="flex items-center justify-between mt-2">
 
             <p className="font-medium">
-              ₹30,000
+              ₹{promotion.amount}
             </p>
 
             <p className="text-gray-600">
-              Due Sep 5
+              Due {promotion.dueDate}
             </p>
 
           </div>
@@ -187,11 +250,22 @@ const Promotions = () => {
           >
 
             <p className="text-gray-700">
-              Payment: <span className="font-medium">Pending</span>
+              Payment: <span className="font-medium">{promotion.payment}</span>
             </p>
 
              <button
-  onClick={() => setEditOpen(true)}
+  onClick={() =>  {setSelectedPromotion(promotion);
+    setEditForm({
+      platform:promotion.platform,
+      campaign:promotion.campaign,
+      amount:promotion.amount,
+      dueDate:promotion.dueDate,
+      deliverable:promotion.deliverables || [],
+      payment: promotion.payment
+    });
+    setEditOpen(true);
+  }
+  }
   className="
     flex items-center gap-2
     font-medium
@@ -206,110 +280,10 @@ const Promotions = () => {
           </div>
 
         </div>
+        ))}
 
       </div>
-      {/* Promotion Card 2 */} 
-<div
-  className="
-    mt-6
-    rounded-xl
-    border border-gray-200
-    bg-white
-    p-5
-    shadow-sm
-    max-w-3xl
-  "
->
-  {/* Brand */}
-  <div className="flex items-center justify-between">
 
-    <h2 className="text-lg font-semibold">
-      Boat
-    </h2>
-
-    <button className="text-gray-400 hover:text-gray-600">
-      <Copy className="w-5 h-5" />
-    </button>
-
-  </div>
-
-  {/* Platform */}
-  <p className="mt-2 text-gray-600">
-    YouTube Video
-  </p>
-
-  {/* Amount + Due date */}
-  <div className="flex items-center justify-between mt-2">
-
-    <p className="font-medium">
-      ₹45,000
-    </p>
-
-    <p className="text-gray-600">
-      Due Sep 10
-    </p>
-
-  </div>
-
-  {/* Progress */}
-  <div className="flex items-center gap-6 mt-7 text-sm">
-
-    <label className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        className="w-4 h-4"
-      />
-      Product received
-    </label>
-
-    <label className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        className="w-4 h-4"
-      />
-      Content created
-    </label>
-
-    <label className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        className="w-4 h-4"
-      />
-      Posted
-    </label>
-
-  </div>
-
-  {/* Bottom */}
-  <div
-    className="
-      flex items-center justify-between
-      mt-7
-      pt-4
-      border-t border-gray-200
-    "
-  >
-
-    <p className="text-gray-700">
-      Payment: <span className="font-medium">Pending</span>
-    </p>
-
-   <button
-  onClick={() => setEditOpen(true)}
-  className="
-    flex items-center gap-2
-    font-medium
-    hover:text-blue-500
-    transition
-  "
->
-  Edit
-  <Pencil className="w-4 h-4" />
-</button>
-
-  </div>
-
-</div>
  
  {addPromotion && (  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
 
@@ -389,13 +363,15 @@ const Promotions = () => {
       <div className="flex justify-end gap-3 mt-6">
 
         <button
-          onClick={() => setAddPromotion(false)}
+          onClick={() => setAddPromotion(true)}
           className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100"
         >
           Cancel
         </button>
 
         <button
+
+      
           className="px-5 py-2.5 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600"
         >
           Add Promotion
@@ -462,7 +438,11 @@ const Promotions = () => {
         </label>
 
         <select
-          defaultValue="Instagram Reel"
+          Value={editForm.platform }
+          onChange={(e)=>setEditForm({
+            ...editForm,
+            platform: e.target.value
+          })}
           className="
             w-full
             px-4 py-3
@@ -489,8 +469,13 @@ const Promotions = () => {
         </label>
 
         <input
+
           type="text"
-          defaultValue="Summer Campaign"
+          Value={editForm.campaign}
+          onChange={(e)=>setEditForm({
+            ...editForm,
+            campaign:e.target.value
+          })}
           className="
             w-full
             px-4 py-3
@@ -513,7 +498,11 @@ const Promotions = () => {
 
         <input
           type="number"
-          defaultValue="30000"
+          Value={editForm.amount}
+          onChange={(e)=>setEditForm({
+            ...editForm,
+            amount:e.target.value
+          })}
           className="
             w-full
             px-4 py-3
@@ -536,7 +525,11 @@ const Promotions = () => {
 
         <input
           type="date"
-          defaultValue="2026-09-05"
+          Value={editForm.dueDate}
+          onChange={(e)=>setEditForm({
+            ...editForm,
+            dueDate:e.target.value
+          })}
           className="
             w-full
             px-4 py-3
@@ -562,10 +555,13 @@ const Promotions = () => {
 
    { addDeliverables.map((deliverable,index) => (
      
-     <div className="flex items-center gap-2">
+     <div className="flex items-center gap-2" 
+     key={index}>
       <input
         type="text"
         placeholder="type deliverables e.g. 1 insta story"
+        value={deliverable}
+        onChange={(e)=>handleDeliverableChange(index,e.target.value)}
         className="
           flex-1
           px-4 py-3
@@ -621,7 +617,14 @@ const Promotions = () => {
         </label>
 
         <select
-          defaultValue="Pending"
+          Value= {editForm.payment}
+          onChange={(e)=>setEditForm({
+            ...editForm,
+            payment:e.target.value
+
+          }
+
+          )}
           className="
             w-full
             px-4 py-3
@@ -656,7 +659,7 @@ const Promotions = () => {
         </button>
 
         <button
-          onClick={() => setEditOpen(false)}
+          onClick={saveChanges}
           className="
             px-5 py-2.5
             rounded-lg
