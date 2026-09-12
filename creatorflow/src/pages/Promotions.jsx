@@ -14,23 +14,31 @@ const Promotions = () => {
    const [editOpen,setEditOpen]= useState(false);
    const [addDeliverables,setAddDeliverables]= useState([]);
    const [selectedPromotion,setSelectedPromotion] = useState(null);
+   
    const [editForm,setEditForm] = useState({
     platform: "",
     campaign: "",
     amount:"",
     dueDate:"",
-    deliverable:[],
+    deliverables:[],
     payment:""
 
    });
 
    const [addCard,setAddCard] = useState({
     brand:"",
-    brand:"",
+    platform:"",
+    campaign:"",
     amount:"",
     dueDate:"",
+    deliverables:[],
+    payment:"",
+    productReceived:false,
+    contentCreated:false,
+    posted:false,
 
    });
+
 
 
    
@@ -58,16 +66,43 @@ const Promotions = () => {
     setAddDeliverables(updatedDeliverables)
    }
 
+   
+
    function saveCard(){
+
+
+      if (
+    !addCard.brand ||
+    !addCard.platform ||
+    !addCard.campaign ||
+    !addCard.amount ||
+    !addCard.dueDate ||
+    !addCard.payment ||
+    addDeliverables.length === 0
+  ) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  // Amount validation
+  if (Number(addCard.amount) <= 0) {
+    alert("Amount must be greater than 0");
+    return;
+  }
 
     const newPromotion = {
   id: Date.now(),
   brand: addCard.brand,
   platform: addCard.platform,
+  campaign:addCard.campaign,
   amount: addCard.amount,
   dueDate: addCard.dueDate,
-  payment: "Pending",
-  deliverables: []
+  payment: addCard.payment,
+  deliverables: addDeliverables,
+  productReceived:addCard.productReceived,
+  contentCreated: addCard.contentCreated,
+  posted:addCard.posted,
+
 };
 
     setPromotionList([
@@ -75,7 +110,22 @@ const Promotions = () => {
       newPromotion ]
 
     )
-    setAddPromotion(false)
+    setAddPromotion(false);
+
+    setAddCard({
+  brand: "",
+  platform: "",
+  campaign: "",
+  amount: "",
+  dueDate: "",
+  deliverables: [],
+  payment: "",
+  productReceived: false,
+  contentCreated: false,
+  posted: false,
+});
+
+setAddDeliverables([]);
    }
    
 
@@ -97,6 +147,46 @@ const Promotions = () => {
       setEditOpen(false);
    }
 
+   function updateProgress(id,field) {
+    setPromotionList(
+      promotionList.map((promotion)=>
+      promotion.id===id?
+       {
+        ...promotion,
+        [field]: ! promotion[field]
+       }
+       :promotion
+    )
+    );
+   }
+
+
+   function deletePromotion(id){
+    setPromotionList(
+      promotionList.filter((promotion)=>
+      promotion.id!==id
+    )
+    );
+   }
+
+   const [search,setSearch] = useState("");
+    const [filter,setFilter]=useState("");
+  
+   const filterPromotions=promotionList.filter((promotion)=>{
+
+    const matchesSearch=
+      promotion.brand.toLowerCase().includes(search.toLowerCase()) ||
+      promotion.platform.toLowerCase().includes(search.toLowerCase()) ||
+      promotion.campaign.toLowerCase().includes(search.toLowerCase()) 
+    
+      const matchesFilter= promotion.payment.toLowerCase().includes(filter.toLowerCase());
+   
+      return matchesSearch && matchesFilter;
+   } );
+
+   
+  
+
    
 
    
@@ -113,9 +203,10 @@ const Promotions = () => {
         </h1>
 
         <button
-        onClick={()=>
+        onClick={()=> {
+           setAddDeliverables([]);
           setAddPromotion(true)
-        }
+        } }
           className="
             flex items-center gap-2
             px-5 py-3
@@ -151,6 +242,8 @@ const Promotions = () => {
           <input
             type="text"
             placeholder="Search promotions..."
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
             className="
               w-full
               bg-transparent
@@ -163,24 +256,32 @@ const Promotions = () => {
         </div>
 
         {/* Filter */}
-        <button
-          className="
-            flex items-center gap-2
-            whitespace-nowrap
-            text-gray-700
-            font-medium
-          "
-        >
-          Filter: All
-          <ChevronDown className="w-4 h-4" />
-        </button>
+         <select 
+         value={filter}
+         onChange={(e)=>setFilter(e.target.value)}
+         className="flex items-center gap-2 whitespace-nowrap text-gray-700 font-medium">
+       
+        
+          
+
+         <option value="">Filter:All</option>
+          <option value="paid">Paid</option>
+          <option value="partially paid">partially paid</option>
+          <option value="pending">pending</option>
+         
+        
+       </select>
+        
+        
+                  
+
 
       </div>
 
 
       {/* Promotion Card */}
       <div className="mt-10 max-w-3xl">
-      {promotionList.map((promotion)=>(
+      {filterPromotions.map((promotion)=>(
 
      
 
@@ -238,6 +339,8 @@ const Promotions = () => {
               <input
                 type="checkbox"
                 className="w-4 h-4"
+                checked={promotion.productReceived}
+                onChange={()=>updateProgress(promotion.id,"productReceived")}
               />
               Product received
             </label>
@@ -246,6 +349,8 @@ const Promotions = () => {
               <input
                 type="checkbox"
                 className="w-4 h-4"
+                checked={promotion.contentCreated}
+                onChange={()=>updateProgress(promotion.id,"contentCreated")}
               />
               Content created
             </label>
@@ -254,6 +359,8 @@ const Promotions = () => {
               <input
                 type="checkbox"
                 className="w-4 h-4"
+                checked={promotion.posted}
+                onChange={()=>updateProgress(promotion.id,"posted")}
               />
               Posted
             </label>
@@ -282,7 +389,7 @@ const Promotions = () => {
       campaign:promotion.campaign,
       amount:promotion.amount,
       dueDate:promotion.dueDate,
-      deliverable:promotion.deliverables || [],
+      deliverables:promotion.deliverables || [],
       payment: promotion.payment
     });
     setEditOpen(true);
@@ -298,6 +405,14 @@ const Promotions = () => {
   Edit
   <Pencil className="w-4 h-4" />
 </button>
+  <button
+    onClick={() => { 
+      if (window.confirm("Are you sure you want to delte this promotion?")) {
+      deletePromotion(promotion.id)} } }
+    className="font-medium text-red-500 hover:text-red-600 transition"
+  >
+    Delete
+  </button>
 
           </div>
 
@@ -370,6 +485,30 @@ const Promotions = () => {
           />
         </div>
 
+         {/* Campaign */}
+        <div>
+          <label className="block mb-1 text-sm font-medium">
+            Campaign
+          </label>
+
+          <input
+            type="text"
+            placeholder="e.g. promotion campaign"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+            value={addCard.campaign}
+            onChange={(e)=>setAddCard(
+              {
+                ...addCard,
+                campaign:e.target.value
+              }
+            )}
+            
+          />
+        </div>
+
+        
+
+
         {/* Amount */}
         <div>
           <label className="block mb-1 text-sm font-medium">
@@ -390,6 +529,7 @@ const Promotions = () => {
             
           />
         </div>
+
 
         {/* Due Date */}
         <div>
@@ -413,6 +553,96 @@ const Promotions = () => {
 
 
       </div> 
+     <div className="mb-6">
+
+  <label className="block mb-1 text-sm font-medium">
+    Deliverables
+  </label>
+
+  <div className="flex flex-col gap-3">
+
+   { addDeliverables.map((deliverable,index) => (
+     
+     <div className="flex items-center gap-2" 
+     key={index}>
+      <input
+        type="text"
+        placeholder="type deliverables e.g. 1 insta story"
+        value={deliverable}
+        onChange={(e)=>handleDeliverableChange(index,e.target.value)}
+        className="
+          w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+      />
+
+      <button 
+      onClick={()=>removeNewDeliverable(index)}
+        className="
+          px-3 py-3
+          rounded-lg
+          text-red-500
+          hover:bg-red-50
+        "
+      >
+        🗑
+      </button>
+    </div>
+    ) )}
+  
+
+   
+
+
+  </div>
+
+
+  <button
+  onClick={addNewDeliverable}
+    className="
+      mt-3
+      text-blue-500
+      font-medium
+      hover:text-blue-600
+    "
+  >
+    + Add Deliverable
+  </button>
+  
+
+</div>
+
+ <div className="mb-6">
+
+        <label className="block mb-2 font-medium">
+          Payment
+        </label>
+
+        <select
+          value= {addCard.payment}
+          onChange={(e)=>setAddCard({
+            ...addCard,
+            payment:e.target.value
+
+          }
+
+          )}
+          className="
+            w-full
+            px-4 py-3
+            rounded-lg
+            border border-gray-300
+            outline-none
+            focus:border-blue-500
+          "
+        >
+          <option>Pending</option>
+          <option>Paid</option>
+          <option>Partially Paid</option>
+        </select>
+
+      </div>
+
+
+
       </div>
 
       {/* Buttons */}
@@ -495,7 +725,7 @@ const Promotions = () => {
         </label>
 
         <select
-          Value={editForm.platform }
+          value={editForm.platform }
           onChange={(e)=>setEditForm({
             ...editForm,
             platform: e.target.value
@@ -528,7 +758,7 @@ const Promotions = () => {
         <input
 
           type="text"
-          Value={editForm.campaign}
+          value={editForm.campaign}
           onChange={(e)=>setEditForm({
             ...editForm,
             campaign:e.target.value
@@ -555,7 +785,7 @@ const Promotions = () => {
 
         <input
           type="number"
-          Value={editForm.amount}
+          value={editForm.amount}
           onChange={(e)=>setEditForm({
             ...editForm,
             amount:e.target.value
@@ -582,7 +812,7 @@ const Promotions = () => {
 
         <input
           type="date"
-          Value={editForm.dueDate}
+          value={editForm.dueDate}
           onChange={(e)=>setEditForm({
             ...editForm,
             dueDate:e.target.value
@@ -674,7 +904,7 @@ const Promotions = () => {
         </label>
 
         <select
-          Value= {editForm.payment}
+          value= {editForm.payment}
           onChange={(e)=>setEditForm({
             ...editForm,
             payment:e.target.value
