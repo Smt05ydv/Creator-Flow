@@ -24,7 +24,9 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 
 app.use("/api/v1/healthCheck", healthCheckRouter);
+
 app.use("/api/v1/promotions",promotionRouter);
+
 
 app.get("/", (req, res) => {
     res.send("Welcome to backkk");
