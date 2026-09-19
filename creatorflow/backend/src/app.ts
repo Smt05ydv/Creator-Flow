@@ -1,11 +1,15 @@
-const app = express();
-console.log("APP.TS LOADED");
-
 import express from "express";
 
 
 import cors from "cors";
 import healthCheckRouter from "./routes/healthcheck.routes.js";
+import promotionRouter from "./routes/promotion.routes.js"
+
+
+const app = express();
+console.log("APP.TS LOADED");
+
+
 
 
 
@@ -20,6 +24,7 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 
 app.use("/api/v1/healthCheck", healthCheckRouter);
+app.use("/api/v1/promotions",promotionRouter);
 
 app.get("/", (req, res) => {
     res.send("Welcome to backkk");
