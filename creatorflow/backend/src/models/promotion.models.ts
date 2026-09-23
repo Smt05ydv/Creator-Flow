@@ -1,9 +1,33 @@
 
-import mongoose,{Schema} from "mongoose";
+import mongoose,{ Schema, type HydratedDocument, type Model } from "mongoose";
 
 
-const promotionSchema= new Schema(
+export interface IPromotion {
+    
+
+  userId: mongoose.Types.ObjectId,
+  brand: string;
+  platform: string;
+  amount: number;
+  dueDate: Date;
+  deliverables: string[];
+  payment: string;
+  campaign: string;
+productReceived: boolean;
+  posted: boolean;
+  contentCreated:boolean;
+}
+
+export type PromotionModel = Model<IPromotion, {}>;
+export type PromotionDocument = HydratedDocument<IPromotion>;
+const promotionSchema= new Schema<IPromotion,PromotionModel>(
     {
+        userId:{
+           type:mongoose.Schema.Types.ObjectId,
+           ref:"User",
+           required:true,
+           index:true,
+        },
         brand:{
             type: String,
             required:true,
@@ -79,4 +103,4 @@ const promotionSchema= new Schema(
     },
 )
 
-export const Promotion= mongoose.model("Promotion",promotionSchema);
+export const Promotion= mongoose.model<IPromotion>("Promotion",promotionSchema);

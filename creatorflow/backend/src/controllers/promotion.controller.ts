@@ -4,14 +4,21 @@ import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 
 const addPromotion= asyncHandler(async(req,res)=>{
+    
     const {brand,platform,campaign,amount,dueDate,deliverables,payment}= req.body
 
+    if (!req.user){
+        throw new ApiError(401,"Unauthorized Access");
+    }
+ const userId= req.user?._id;
    
 
-   
+      
 
    const promotion=  await Promotion.create({
-        brand,platform,campaign,amount,dueDate,deliverables,payment,
+       
+          userId,
+      brand,platform,campaign,amount,dueDate,deliverables,payment,
     });
 
     
@@ -29,7 +36,8 @@ const addPromotion= asyncHandler(async(req,res)=>{
 
 const getCurrentPromotion= asyncHandler(async(req,res)=>{
     const {id} = req.params
-    const promotion = await Promotion.findById(id)
+    const promotion = await Promotion.findById({_id: id,
+  userId: req.user?._id})
     if(!promotion) {
         throw new ApiError(404,"promotion not found")
     };
@@ -42,7 +50,11 @@ const getCurrentPromotion= asyncHandler(async(req,res)=>{
 
 
 const getAllPromotions= asyncHandler(async(req,res)=>{
-    const promotions= await Promotion.find()
+
+    if(!req.user){
+        throw new ApiError(401,"Unauthorized Access")
+    }
+    const promotions= await Promotion.find({userId: req.user?._id})
    
 
         return res
@@ -57,8 +69,10 @@ const editPromotion= asyncHandler(async(req,res)=>{
 
     const {id} = req.params
     const {brand,platform,campaign,amount,dueDate,deliverables,payment}= req.body
+    
 
-    const editedpromotion = await Promotion.findByIdAndUpdate(id,
+    const editedpromotion = await Promotion.findByIdAndUpdate({_id: id,
+  userId: req.user?._id},
     {brand,platform,campaign,amount,dueDate,deliverables,payment},
     {
         new:true,
@@ -82,7 +96,8 @@ const editPromotion= asyncHandler(async(req,res)=>{
 
 const deletePromotion= asyncHandler(async(req,res)=>{
     const {id}= req.params
-    const promotion = await Promotion.findById(id)
+    const promotion = await Promotion.findById({_id: id,
+  userId: req.user?._id})
 
      if(!promotion){
         throw new ApiError(404,"promotion not found")
