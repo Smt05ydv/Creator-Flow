@@ -128,7 +128,7 @@ const login= asyncHandler(async(req,res)=>{
     const {refreshToken,accessToken} = await generateAccessAndRefreshToken(user._id.toString());
 
     const loggedInUser= await User.findById(user._id).
-    select("-password refreshToken -emailVerificationToken -emailVerficationExpiry");
+    select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
 
     const options:CookieOptions= {
         httpOnly:true,
@@ -278,9 +278,8 @@ const resendEmailVerification= asyncHandler(async(req,res)=>{
 });
 
 const refreshAccessToken = asyncHandler(async(req,res)=>{
-    const incomingRefreshToken= req.cookies.refreshToken || 
-    req.body.refreshToken
-
+  const incomingRefreshToken =
+  req.body?.refreshToken || req.cookies?.refreshToken;
     if (!incomingRefreshToken){
         throw new ApiError(409,"refresh token not found")
     }

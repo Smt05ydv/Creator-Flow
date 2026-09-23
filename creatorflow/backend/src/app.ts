@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 import promotionRouter from "./routes/promotion.routes.js"
+import authRouter from "./routes/auth.routes.js"
 
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.static("public"));
 app.use("/api/v1/healthCheck", healthCheckRouter);
 
 app.use("/api/v1/promotions",promotionRouter);
+app.use("/api/v1/auth",authRouter);
 
 
 app.get("/", (req, res) => {
