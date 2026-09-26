@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useState } from 'react'
 import { Bell,User,Menu } from 'lucide-react'
 import { Outlet } from 'react-router'
@@ -6,8 +6,9 @@ import Sidebar from './Sidebar'
 const Layout=()=> {
 
     const[sidebarOpen,setSidebarOpen] = useState(false)
+    
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" >
 
       {/* Navbar */}
       <nav className="flex items-center justify-between p-4 border-b">
@@ -27,9 +28,10 @@ const Layout=()=> {
 
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" >
 
           <div className="relative">
+            
             <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100">
               <Bell className="w-6 h-6" />
             </button>
