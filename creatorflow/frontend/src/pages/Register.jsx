@@ -1,6 +1,68 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import { Link,useNavigate } from "react-router";
+
+
+
 
 const Register = () => {
+
+  const navigate=useNavigate();
+  const [formData,setFormData] = useState({
+    fullname:"",
+    username:"",
+    email:"",
+    password:"",
+  })
+
+  const [error,setError]= useState("");
+  const [loading,setLoading]= useState(false);
+
+const handleChange=(e)=>{
+  setFormData({
+    ...formData,
+    [e.target.name]:e.target.value,
+  });
+};
+
+const handleSubmit=async(e)=>{
+  e.preventDefault();
+  setError("")
+    setLoading(true);
+  
+
+
+try {
+ const response= await fetch(
+    "http://localhost:5002/api/v1/auth/register",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type" :"application/json",
+        
+      },
+      credentials: "include",
+      body:JSON.stringify(formData),
+    }
+ );
+ 
+
+const data = await response.json();
+ if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
+    }
+
+    console.log("Registration Successful",data);
+    navigate("/login")
+    
+
+} catch (error) {
+  setError(error.message);
+}
+finally{
+  setLoading(false);
+}
+}
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -23,9 +85,15 @@ const Register = () => {
 
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Get started with CreatorFlow
-          </p>
-
-          <form className="mt-6 space-y-5">
+           </p>
+            {error && (
+           <p className="mt-4 text-sm text-red-500">
+              {error}
+            </p>
+               )}
+          <form 
+          onSubmit={handleSubmit}
+          className="mt-6 space-y-5">
 
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -34,6 +102,9 @@ const Register = () => {
 
               <input
                 type="text"
+                name="fullname"
+                value={formData.fullname}
+                onChange={handleChange}
                 placeholder="Enter your full name"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-blue-500"
               />
@@ -46,7 +117,10 @@ const Register = () => {
 
               <input
                 type="text"
+                name="username"
                 placeholder="Enter username"
+                value={formData.username}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-blue-500"
               />
             </div>
@@ -58,7 +132,10 @@ const Register = () => {
 
               <input
                 type="email"
+                name="email"
                 placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-blue-500"
               />
             </div>
@@ -70,16 +147,22 @@ const Register = () => {
 
               <input
                 type="password"
+                name="password"
                 placeholder="Create a password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-blue-500"
               />
             </div>
 
             <button
               type="submit"
+              disabled={loading}
+            
               className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium transition"
             >
-              Create Account
+               {loading ? "Creating Account..." : "Create Account"}
+              
             </button>
 
           </form>

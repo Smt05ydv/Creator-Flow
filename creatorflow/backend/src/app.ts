@@ -17,7 +17,7 @@ console.log("APP.TS LOADED");
 
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5173"],
+    origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5174"],
     credentials: true,
     methods: ["GET", "PUT", "POST", "PATCH", "DELETE", "OPTIONS"],
 }));
