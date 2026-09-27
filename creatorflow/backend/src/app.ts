@@ -5,6 +5,8 @@ import cors from "cors";
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 import promotionRouter from "./routes/promotion.routes.js"
 import authRouter from "./routes/auth.routes.js"
+import earningsRouter from "./routes/earnings.routes.js"
+import dashboardRouter from "./routes/dashboard.routes.js"
 
 
 const app = express();
@@ -28,6 +30,9 @@ app.use("/api/v1/healthCheck", healthCheckRouter);
 
 app.use("/api/v1/promotions",promotionRouter);
 app.use("/api/v1/auth",authRouter);
+app.use("/api/v1/earnings",earningsRouter);
+app.use("/api/v1/dashboard",dashboardRouter);
+
 
 
 app.get("/", (req, res) => {

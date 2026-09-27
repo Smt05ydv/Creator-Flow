@@ -9,8 +9,8 @@ const Dashboard = () => {
     const[sidebarOpen,setSidebarOpen] = useState(false)
     
   return (
-    <div className="min-h-screen">
-
+   <div className="min-h-screen bg-white
+    dark:bg-gray-950 text-gray-900 dark:text-white">
     
 
 
@@ -30,13 +30,14 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 px-6">
 
         {/* Earned */}
-        <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-          <p className="text-sm font-medium text-gray-500">
+       <div className="p-5 rounded-2xl bg-gray-50 dark:bg-gray-900 border
+        border-gray-200 dark:border-gray-700">
+         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Earned
           </p>
 
           <div className="flex items-center justify-between mt-3">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               ₹25,000
             </h2>
 
@@ -50,15 +51,15 @@ const Dashboard = () => {
         {/* Promotions */}
         <Link
         to = "promotions">
-        <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-          <p className="text-sm font-medium text-gray-500"
-          >
+       <div className="p-5 rounded-2xl bg-gray-50
+        dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
             
             Promotions
           </p>
 
           <div className="flex items-center justify-between mt-3">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               12
             </h2>
 
@@ -72,13 +73,14 @@ const Dashboard = () => {
 
 
         {/* Pending */}
-        <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-          <p className="text-sm font-medium text-gray-500">
+       <div className="p-5 rounded-2xl bg-gray-50
+        dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Pending
           </p>
 
           <div className="flex items-center justify-between mt-3">
-            <h2 className="text-3xl font-bold text-gray-900">
+           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               ₹8,000
             </h2>
           </div>
@@ -88,7 +90,8 @@ const Dashboard = () => {
 
 
       {/* Upcoming Promotions */}
-      <div className="mt-8 mx-6 p-6 rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="mt-8 mx-6 p-6 rounded-xl border border-gray-200
+       dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
 
         <h2 className="text-2xl font-bold">
           Upcoming Promotions
@@ -97,12 +100,13 @@ const Dashboard = () => {
         <div className="mt-4">
 
           {/* Promotion 1 */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between py-4 
+          border-b border-gray-200 dark:border-gray-700">
             <span className="w-1/3 font-medium">
               Nike
             </span>
 
-            <span className="w-1/3 text-gray-500">
+           <span className="w-1/3 text-gray-500 dark:text-gray-400">
               Instagram
             </span>
 
@@ -113,12 +117,13 @@ const Dashboard = () => {
 
 
           {/* Promotion 2 */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-200">
+           <div className="flex items-center justify-between py-4 
+          border-b border-gray-200 dark:border-gray-700">
             <span className="w-1/3 font-medium">
               Boat
             </span>
 
-            <span className="w-1/3 text-gray-500">
+            <span className="w-1/3 text-gray-500 dark:text-gray-400">
               YouTube
             </span>
 
@@ -129,12 +134,13 @@ const Dashboard = () => {
 
 
           {/* Promotion 3 */}
-          <div className="flex items-center justify-between py-4">
+           <div className="flex items-center justify-between py-4 
+          border-b border-gray-200 dark:border-gray-700">
             <span className="w-1/3 font-medium">
               XYZ
             </span>
 
-            <span className="w-1/3 text-gray-500">
+             <span className="w-1/3 text-gray-500 dark:text-gray-400">
               Instagram
             </span>
 

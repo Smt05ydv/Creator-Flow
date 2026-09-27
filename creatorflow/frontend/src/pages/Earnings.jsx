@@ -3,13 +3,14 @@ import {siYoutube,siInstagram} from "simple-icons"
 
 const Earnings = () => {
   return (
-   <div className="mt-10 max-w-5xl space-y-4 "> 
+  <div className="min-h-screen mt-10 max-w-5xl space-y-4
+   text-gray-900 dark:text-white">
   <div className='flex justify-center text-center'>
    <h1 className='text-3xl font-semibold '> Earnings</h1>
    </div>
 
   {/* Instagram */}
-  <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm ">
+  <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm ">
     <div className="flex items-center justify-between gap-y-2">
       
       <div className="flex items-center gap-2">
@@ -75,7 +76,8 @@ const Earnings = () => {
    </div>
 
   {/* Instagram */}
-  <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm h-26">
+  <div className="rounded-xl border border-gray-200
+   dark:border-gray-700 bg-white dark:bg-gray-900 p-5 shadow-sm h-26">
     <div className="flex items-center justify-between">
       
       <div className="flex items-center gap-2">
@@ -101,7 +103,8 @@ const Earnings = () => {
 
 
   {/* YouTube */}
-  <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm h-26">
+  <div className="rounded-xl border border-gray-200 dark:border-gray-700
+   bg-white dark:bg-gray-900 p-5 shadow-sm h-26">
     <div className="flex items-center justify-between">
 
       <div className="flex items-center gap-2">
@@ -132,7 +135,8 @@ const Earnings = () => {
    </div>
 
   {/* Instagram */}
-  <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm ">
+  <div className="rounded-xl border border-gray-200 dark:border-gray-700
+   bg-white dark:bg-gray-900 p-5 shadow-sm ">
     <div className="flex items-center justify-between">
       
       <div className="flex items-center gap-0">
@@ -145,9 +149,10 @@ const Earnings = () => {
       <p className="font-semibold text-lg">
         30000
       </p>
-      <p className="font-semibold text-lg">
-        Recieved
-      </p>
+     <p className="font-semibold text-lg
+      text-green-600 dark:text-green-400">
+  Received
+</p>
 
     </div>
     <div className="flex items-center justify-between">
@@ -162,9 +167,10 @@ const Earnings = () => {
       <p className="font-semibold text-lg">
         1000
       </p>
-      <p className="font-semibold text-lg">
-        Pending
-      </p>
+     <p className="font-semibold text-lg
+      text-yellow-600 dark:text-yellow-400">
+  Pending
+</p>
 
     </div>
     <div className="flex items-center justify-between">
@@ -179,9 +185,10 @@ const Earnings = () => {
       <p className="font-semibold text-lg">
         30000
       </p>
-      <p className="font-semibold text-lg">
-        Recieved
-      </p>
+      <p className="font-semibold text-lg
+       text-green-600 dark:text-green-400">
+  Received
+</p>
       
 
     </div>

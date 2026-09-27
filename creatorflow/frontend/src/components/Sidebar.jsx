@@ -5,15 +5,18 @@ import {
   Settings,
   Calendar,
 } from "lucide-react";
-import { Outlet } from "react-router";
-import React from "react";
-import Dashboard from "../pages/Dashboard";
+
 import { Link } from "react-router";
-import Layout from "./Layout";
+
 const Sidebar = ({onClose}) => {
   return (
-   <aside className="fixed top-16 left-0 z-50 w-64 h-[calc(100vh-4rem)]
-    bg-gray-50 border-r border-gray-200 p-5">
+   <aside
+  className="fixed top-16 left-0 z-50 w-64 h-[calc(100vh-4rem)]
+  bg-gray-50 dark:bg-gray-900
+  text-gray-900 dark:text-white
+  border-r border-gray-200 dark:border-gray-700
+  p-5"
+>
       <h1 className="text-xl font-bold mb-8">
         CREATORFLOW
       </h1>
@@ -27,7 +30,8 @@ const Sidebar = ({onClose}) => {
        onClick={onClose}
        ><button 
        
-        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
           <LayoutDashboard className="w-5 h-5" />
           <span>Dashboard</span>
         </button> </Link> 
@@ -39,7 +43,8 @@ const Sidebar = ({onClose}) => {
         >
         <button 
          onClick={onClose}
-         className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+         className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
           <Megaphone className="w-5 h-5" />
           <span>Promotions</span>
         </button> </Link>
@@ -49,7 +54,8 @@ const Sidebar = ({onClose}) => {
         to="earnings">
         <button 
         onClick={onClose}
-        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
           <Wallet className="w-5 h-5" />
           <span>Earnings</span>
         </button></Link>
@@ -58,13 +64,15 @@ const Sidebar = ({onClose}) => {
         to="calender">
         <button 
         onClick={onClose}
-        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+       className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
           <Calendar className="w-5 h-5" />
           <span>Calender</span>
         </button></Link>
 
         {/* Settings */}
-        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-gray-200 transition">
+        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
           <Settings className="w-5 h-5" />
           <span>Settings</span>
         </button>

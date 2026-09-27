@@ -87,7 +87,7 @@ const Calendar = () => {
 
 
   return (
-    <div className="min-h-screen bg-white px-8 py-8">
+    <div className="min-h-screen bg-white dark:bg-gray-900 px-8 py-8">
 
       {/* Page Header */}
       <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ const Calendar = () => {
             Calendar
           </h1>
 
-          <p className="mt-1 text-gray-500">
+          <p className="mt-1 text-white-500 ">
             Manage your promotion deadlines and events
           </p>
         </div>
@@ -110,8 +110,8 @@ const Calendar = () => {
             flex items-center gap-2
             px-4 py-2.5
             rounded-lg
-            border border-gray-200
-            hover:bg-gray-100
+            border border-gray-200 dark:border-gray-700
+            hover:bg-gray-100 dark:hover:bg-gray-700
             transition
           "
         >
@@ -127,8 +127,8 @@ const Calendar = () => {
         mt-8
         max-w-5xl
         rounded-2xl
-        border border-gray-200
-        bg-white
+        border border-gray-200 dark:border-gray-700
+        bg-white dark:bg-gray-900
         shadow-sm
         overflow-hidden
       ">
@@ -138,7 +138,7 @@ const Calendar = () => {
         <div className="
           flex items-center justify-between
           p-5
-          border-b border-gray-200
+          border-b border-gray-200 dark:border-gray-700
         ">
 
           <button
@@ -147,7 +147,7 @@ const Calendar = () => {
               flex items-center justify-center
               w-9 h-9
               rounded-lg
-              hover:bg-gray-100
+              hover:bg-gray-100  dark:hover:bg-gray-700
               transition
             "
           >
@@ -166,7 +166,7 @@ const Calendar = () => {
               flex items-center justify-center
               w-9 h-9
               rounded-lg
-              hover:bg-gray-100
+              hover:bg-gray-100   dark:hover:bg-gray-700
               transition
             "
           >
@@ -177,7 +177,8 @@ const Calendar = () => {
 
 
         {/* Week Names */}
-        <div className="grid grid-cols-7 border-b border-gray-200">
+        <div className="grid grid-cols-7 border-b border-gray-200
+        dark:border-gray-700 ">
 
           {[
             "Sun",
@@ -197,7 +198,7 @@ const Calendar = () => {
                 text-sm
                 font-medium
                 text-gray-500
-                border-r border-gray-200
+                border-r border-gray-200 dark:border-gray-700
               "
             >
               {day}
@@ -222,7 +223,7 @@ const Calendar = () => {
                 min-h-28
                 border-r
                 border-b
-                border-gray-200
+                border-gray-200 dark:border-gray-700
               "
             />
 
@@ -242,9 +243,9 @@ const Calendar = () => {
                   min-h-28
                   border-r
                   border-b
-                  border-gray-200
+                  border-gray-200 dark:border-gray-700
                   p-3
-                  hover:bg-gray-50
+                  hover:bg-gray-50  dark:hover:bg-gray-700
                   transition
                 "
               >
@@ -260,8 +261,8 @@ const Calendar = () => {
                       text-sm
                       ${
                         isToday(day)
-                          ? "bg-blue-500 text-white font-semibold"
-                          : "text-gray-700"
+                          ? "bg-blue-500 text-white dark:text-black  font-semibold"
+                          : "text-gray-900 dark:text-white "
                       }
                     `}
                   >
