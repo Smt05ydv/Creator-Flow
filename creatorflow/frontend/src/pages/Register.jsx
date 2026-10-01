@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link,useNavigate } from "react-router";
+import { useState,useEffect} from "react";
+import { Link,useNavigate, } from "react-router";
 
 
 
@@ -16,6 +16,53 @@ const Register = () => {
 
   const [error,setError]= useState("");
   const [loading,setLoading]= useState(false);
+
+  
+  
+    const handleCredentialLogin= async(googleResponse)=>{
+    try {
+      setError("");
+        setLoading(true);
+        const res = await fetch("http://localhost:5002/api/v1/auth/google",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+            },
+            credentials:"include",
+            body:JSON.stringify({
+              credential:googleResponse.credential,
+            })
+          }
+        )
+      const data = await res.json()
+      if (!res.ok){
+        throw new Error(data.message || "Google Login Failed") ;     }
+
+        console.log("Google Login Successful",data);
+        navigate("/")
+        
+    } catch (error) {
+      setError(error.message)
+    }
+      
+    finally{
+      setLoading(false)
+    }  
+    }
+
+    
+    useEffect(()=>{
+      google.accounts.id.initialize({
+        client_id:"26511365975-bki0v18hk1vbj7quq2tik7f2mlqn96di.apps.googleusercontent.com",
+        callback: handleCredentialLogin
+      })
+  
+      google.accounts.id.renderButton(
+        document.getElementById("googleSignUpDiv"),
+        {theme:"outline", size:"large",width:"100%"}
+      )
+    },[])
 
 const handleChange=(e)=>{
   setFormData({
@@ -52,7 +99,7 @@ const data = await response.json();
     }
 
     console.log("Registration Successful",data);
-    navigate("/login")
+    navigate("/")
     
 
 } catch (error) {
@@ -164,6 +211,14 @@ finally{
                {loading ? "Creating Account..." : "Create Account"}
               
             </button>
+
+            <div
+            id="googleSignUpDiv"
+            className="w-full flex justify-center"
+            
+            >
+
+            </div>
 
           </form>
 

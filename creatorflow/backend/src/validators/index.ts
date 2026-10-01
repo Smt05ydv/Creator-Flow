@@ -28,6 +28,12 @@ const userLoginValidator = () => {
   ];
 };
 
+const googleLoginValidator = () => [
+    body("credential")
+        .notEmpty()
+        .withMessage("Google credential is required"),
+];
+
 const userChangeCurrentPasswordValidator = () => {
   return [
     body("oldPassword").notEmpty().withMessage("Old password is required"),
@@ -56,6 +62,7 @@ const userResetForgotPasswordValidator = () => {
 export {
   userRegisterValidator,
   userLoginValidator,
+  googleLoginValidator,
   userChangeCurrentPasswordValidator,
   userForgotPasswordValidator,
   userResetForgotPasswordValidator,

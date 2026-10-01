@@ -1,7 +1,75 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import {siYoutube,siInstagram} from "simple-icons"
 
+
+
 const Earnings = () => {
+
+  const[error,setError]=useState("")
+const [loading,setLoading]=useState(false);
+const[earnings,setEarnings]=useState(null);
+const[platformEarnings,setPlatformEarnings]=useState(null)
+
+{loading && (
+  <p className="text-gray-500 dark:text-gray-400">
+    Loading earnings...
+  </p>
+)}
+
+const fetchEarnings=async()=>{
+  
+  try {
+     setError("")
+      setLoading(true);
+    const response= await fetch("http://localhost:5002/api/v1/earnings",
+      {
+        method:"GET",
+        credentials:"include"
+      },
+
+    )
+
+    const data = await response.json()
+    if (!response.ok){
+      throw new error(error.message || "failed to fetch earnings")
+    }
+    setEarnings(data.data)
+  } catch (error) {
+    console.log(error.message);
+    
+  }
+ 
+};
+
+const fetchPlatformEarnings= async()=>{
+  try {
+    const response = await fetch("http://localhost:5002/api/v1/earnings/platform",
+      {
+        method:"GET",
+        credentials:"include"
+      },
+    )
+    const data=await response.json()
+    if (!response.ok){
+      throw new error(error.message || "failed to fetch platform earnings")
+    }
+    setPlatformEarnings(data.data) 
+  
+  }
+   catch (error) {
+    console.log(error.message);
+    
+  }
+};
+
+
+
+useEffect(()=>{
+  fetchEarnings();
+  fetchPlatformEarnings();
+},[])
+
+
   return (
   <div className="min-h-screen mt-10 max-w-5xl space-y-4
    text-gray-900 dark:text-white">
@@ -21,7 +89,7 @@ const Earnings = () => {
       </div>
 
       <p className="font-semibold text-lg">
-        40000
+        ₹{earnings?.totalEarning??0}
       </p>
 
     </div>
@@ -43,7 +111,7 @@ const Earnings = () => {
       </div>
 
       <p className="font-semibold text-lg">
-        150000
+         ₹{earnings?.pendingAmount??0}
       </p>
 
     </div>
@@ -62,7 +130,7 @@ const Earnings = () => {
       </div>
 
       <p className="font-semibold text-lg">
-        230000
+         ₹{earnings?.paidAmount??0}
       </p>
 
     </div>
@@ -95,7 +163,7 @@ const Earnings = () => {
       </div>
 
       <p className="font-semibold text-lg">
-        $300k
+        ₹{platformEarnings?.instagram??0}
       </p>
 
     </div>
@@ -125,7 +193,7 @@ const Earnings = () => {
       </div>
 
       <p className="font-semibold text-lg">
-        $400k
+       ₹{platformEarnings?.youtube??0}
       </p>
 
     </div>

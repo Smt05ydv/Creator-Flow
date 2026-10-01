@@ -13,7 +13,10 @@ export interface IUser {
 
   username: string;
   email: string;
-  password: string;
+  password?: string;
+  googleId?: string;
+    authProvider: "local" | "google";
+
   fullname?: string;
   isEmailVerified: boolean;
   refreshToken?: string;
@@ -44,16 +47,14 @@ export type UserDocument = HydratedDocument<IUser, IUserMethods>;
 
 const userSchema= new Schema<IUser, UserModel, IUserMethods>(
     {
-        avatar:{
-            type:{
-                url:String,
-                localpath:String,
-            },
-            default:{
-                url:"https://placehold.co/200x200",
-                localpath:"",
-            },
-        },
+        avatar: {
+    url: {
+        type: String,
+    },
+    localpath: {
+        type: String,
+    },
+},
         username:{
             type:String,
             required:true,
@@ -77,9 +78,19 @@ const userSchema= new Schema<IUser, UserModel, IUserMethods>(
         },
         password:{
             type:String,
-            required:[true,"password is required"],
-
+           
         },
+        googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+},
+
+authProvider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local",
+},
         isEmailVerified:{
             type:Boolean,
             default:false,
@@ -113,7 +124,7 @@ const userSchema= new Schema<IUser, UserModel, IUserMethods>(
 //hash password before save
 
 userSchema.pre("save",async function () {
-       if (!this.isModified("password")) {
+       if (!this.isModified("password") || !this.password) {
         return;}
 
         this.password = await bcrypt.hash(this.password,10)
@@ -122,6 +133,9 @@ userSchema.pre("save",async function () {
 
 //compare password before saving
 userSchema.methods.isPasswordCorrect= async function (password:string) {
+     if (!this.password) {
+        return false;
+    }
     return await bcrypt.compare(password,this.password)
 };
 

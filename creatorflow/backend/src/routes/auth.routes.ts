@@ -9,7 +9,8 @@ import { registerUser,
   refreshAccessToken,
   forgotPasswordRequest,
   changeCurrentPassword,
-  resetForgotPassword,} from "../controllers/auth.controller.js"
+  resetForgotPassword,
+  googleLogin,} from "../controllers/auth.controller.js"
 
   import { validate } from "../middlewares/validator.middleware.js";
   import { userRegisterValidator,
@@ -17,6 +18,7 @@ import { registerUser,
   userChangeCurrentPasswordValidator,
   userForgotPasswordValidator,
   userResetForgotPasswordValidator,
+  googleLoginValidator,
   } from "../validators/index.js"
 
   import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -25,6 +27,8 @@ import { registerUser,
 
   router.route("/register").post(userRegisterValidator(),validate,registerUser)
   router.route("/login").post(userLoginValidator(),validate,login)
+  router.route("/google").post(googleLoginValidator(),validate,googleLogin)
+
   router.route("/verify-email/:verificationToken").get(verifyEmail)
   router.route("/refresh-token").post(refreshAccessToken)
   router.route("/forgot-password").

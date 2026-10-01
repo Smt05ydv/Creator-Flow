@@ -19,6 +19,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.3",
     "mailgen": "^2.0.36",
     "mongoose": "^9.10.0",
@@ -29,7 +30,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.5.1",
+    "@types/node": "^26.6.3",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }

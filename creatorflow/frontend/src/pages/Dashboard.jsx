@@ -1,14 +1,79 @@
+
+
 import React from 'react'
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { User, Bell, Menu,  } from "lucide-react";
 import {Outlet} from 'react-router'
 import Promotions from './Promotions';
 import Sidebar from '../components/Sidebar.jsx';
 import { Link } from 'react-router';
+import { promotions } from '../data/data.js';
 const Dashboard = () => {
     const[sidebarOpen,setSidebarOpen] = useState(false)
+    const[dashboardData,setDashboardData]=useState(null);
+    const[loading,setLoading]=useState(false);
+    const[error,setError]=useState("");
+    const [UpcomingPromotions,setUpcomingPromotions]= useState([]);
+{loading && (
+  <p className="text-gray-500 dark:text-gray-400">
+    Loading dashboard...
+  </p>
+)}
+   const fetchDashboard=async()=>{
+    try {
+      setError("")
+      setLoading(true);
+       const response= await fetch("http://localhost:5002/api/v1/dashboard",
+           {
+            method:"GET",
+           
+            credentials:"include",
+             
+        },)
+       const data= await response.json()
+           if (!response.ok) {
+            throw new error (data.message || "failed to fetch dahboard")
+
+           }
+
+           setDashboardData(data.data);
+    } catch (error) {
+      setError(error.message)
+    }
+    finally{
+      setLoading(false);
+    }
+   };
+
+   const fetchUpcomingPromotions=async()=>{
+    try {
+      const response= await fetch("http://localhost:5002/api/v1/dashboard/upcoming",
+        {
+          method:"GET",
+          credentials:"include",
+        },
+
+      );
+      const data = await response.json()
+      if (!response.ok){
+        throw new error(data.message || "upcoming promotions fetching failed")
+      }
+      setUpcomingPromotions(data.data.UpcomingPromotions);
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+   };
+
+   useEffect(() => {
+  fetchDashboard();
+  fetchUpcomingPromotions();
+}, []);
+
+
     
   return (
+    
    <div className="min-h-screen bg-white
     dark:bg-gray-950 text-gray-900 dark:text-white">
     
@@ -38,7 +103,7 @@ const Dashboard = () => {
 
           <div className="flex items-center justify-between mt-3">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              ₹25,000
+              ₹{dashboardData?.Earned??0}
             </h2>
 
             <span className="text-sm text-green-600 font-medium">
@@ -60,7 +125,7 @@ const Dashboard = () => {
 
           <div className="flex items-center justify-between mt-3">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              12
+              {dashboardData?.activePromotions??0}
             </h2>
 
             <span className="text-sm text-green-600 font-medium">
@@ -81,7 +146,7 @@ const Dashboard = () => {
 
           <div className="flex items-center justify-between mt-3">
            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              ₹8,000
+              ₹{dashboardData?.Pending??0}
             </h2>
           </div>
         </div>
@@ -90,67 +155,43 @@ const Dashboard = () => {
 
 
       {/* Upcoming Promotions */}
-      <div className="mt-8 mx-6 p-6 rounded-xl border border-gray-200
-       dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+     
 
-        <h2 className="text-2xl font-bold">
-          Upcoming Promotions
-        </h2>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+    Upcoming Promotions
+  </h2>
 
-        <div className="mt-4">
-
-          {/* Promotion 1 */}
+  <div className="mt-4 space-y-3">
+    {UpcomingPromotions.length > 0 ? (
+      UpcomingPromotions.map((promotion) => (
+        // promotion card here
           <div className="flex items-center justify-between py-4 
           border-b border-gray-200 dark:border-gray-700">
             <span className="w-1/3 font-medium">
-              Nike
+              {promotions.brand}
             </span>
 
            <span className="w-1/3 text-gray-500 dark:text-gray-400">
-              Instagram
+              {promotions.platform}
             </span>
 
             <span className="w-1/3 text-right font-semibold">
-              ₹30K
+              ₹{promotions.amount}
+            </span>
+
+             <span className="w-1/3 text-right font-semibold">
+              {promotions.dueDate}
             </span>
           </div>
-
-
-          {/* Promotion 2 */}
-           <div className="flex items-center justify-between py-4 
-          border-b border-gray-200 dark:border-gray-700">
-            <span className="w-1/3 font-medium">
-              Boat
-            </span>
-
-            <span className="w-1/3 text-gray-500 dark:text-gray-400">
-              YouTube
-            </span>
-
-            <span className="w-1/3 text-right font-semibold">
-              ₹45K
-            </span>
-          </div>
-
-
-          {/* Promotion 3 */}
-           <div className="flex items-center justify-between py-4 
-          border-b border-gray-200 dark:border-gray-700">
-            <span className="w-1/3 font-medium">
-              XYZ
-            </span>
-
-             <span className="w-1/3 text-gray-500 dark:text-gray-400">
-              Instagram
-            </span>
-
-            <span className="w-1/3 text-right font-semibold">
-              ₹20K
-            </span>
-          </div>
-
-        </div>
-      </div>
+      ))
+    ) : (
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        No upcoming promotions.
+      </p>
+    )}
+  </div>
+</div>
       
     </div>
   )

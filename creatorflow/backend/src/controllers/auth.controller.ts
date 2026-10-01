@@ -3,6 +3,7 @@
 import crypto from "crypto";
 import type { CookieOptions } from "express";
 import jwt,{type JwtPayload} from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
 
 import { ApiError } from "../utils/api-error.js";
@@ -17,6 +18,7 @@ import { User  } from "../models/user.models.js";
 import { emailVerificationMailgenContent,
     forgotPasswordMailgenContent,
     sendEmail } from "../utils/mail.js";
+
 
 
     interface RefreshTokenPayload extends JwtPayload{
@@ -104,6 +106,110 @@ import { emailVerificationMailgenContent,
             )
            )
 
+});
+
+const verifyGoogleToken= async(idToken:string)=>{
+    const GOOGLE_CLIENT_ID=process.env.GOOGLE_CLIENT_ID;
+
+    if (!GOOGLE_CLIENT_ID) {
+        throw new Error("GOOGLE_CLIENT_ID is not defined");
+    }
+
+    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+    const ticket = await client.verifyIdToken({
+        idToken:idToken,
+        audience:GOOGLE_CLIENT_ID
+    });
+    const payload= ticket.getPayload();
+
+    if(!payload){
+        return null;
+
+    }
+
+    return payload
+};
+
+
+const googleLogin=asyncHandler(async(req,res)=>{
+    const {credential}= req.body
+
+    if (!credential){
+        throw new ApiError(400,"Google Credential not found") }
+
+        const payload= await verifyGoogleToken(credential);
+
+        if (!payload){
+            throw new ApiError(400,"Google credentials Invalid")
+        }
+
+        const userEmail= payload.email
+
+        if (!userEmail){
+            throw new ApiError(401,"Google account email not available")
+        }
+
+        const userName= payload.name
+        const userPicture= payload.picture
+        const googleId= payload.sub
+
+        console.log(
+            googleId,
+            userName,
+            userEmail,
+            userPicture,
+            
+        );
+
+         let user= await User.findOne({email:userEmail});
+    
+    if(!user){
+         user = await User.create({
+            username: userName?.toLowerCase().replace(/\s+/g, "") || `google_${googleId}`,
+            email: userEmail,
+            fullname: userName || "Google User",
+            googleId,
+            authProvider: "google",
+            isEmailVerified: true,
+          ...(userPicture && {
+        avatar: {
+            url: userPicture,
+        },
+    }),
+        });
+    }
+
+    
+
+
+    const {accessToken,refreshToken}=  await generateAccessAndRefreshToken(user.id.toString());
+   
+
+    const loggedInUser= await User.findById(user._id).select(
+        "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
+    )
+
+    if(!loggedInUser){
+        throw new ApiError(500, "something went wrong while logging in")
+    }
+      
+    const options= {
+        httpOnly:true,
+        secure:false,
+        sameSite:"lax" as const,
+    }
+    return res
+           .status(200)
+            .cookie("accessToken", accessToken, options)
+             .cookie("refreshToken", refreshToken, options)
+           .json(
+            new ApiResponse(200,
+                {user:loggedInUser},
+                "Google login successful"
+            )
+           )
+        
 });
 
 const login= asyncHandler(async(req,res)=>{
@@ -426,6 +532,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 export {
   registerUser,
   login,
+  googleLogin,
   logout,
   getCurrentUser,
   verifyEmail,

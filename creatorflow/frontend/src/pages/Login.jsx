@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 const Login = () => {
@@ -11,6 +11,54 @@ const Login = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  
+
+ const handleCredentialLogin= async(googleResponse)=>{
+    try {
+      setError("");
+        setLoading(true);
+        const backendRes = await fetch("http://localhost:5002/api/v1/auth/google",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+            },
+            credentials:"include",
+            body:JSON.stringify({
+              credential:googleResponse.credential,
+            })
+          }
+        )
+      const data = await backendRes.json()
+      if (!backendRes.ok){
+        throw new Error(data.message || "Google Login Failed") ;     }
+
+        console.log("Google Login Successful",data);
+        navigate("/")
+        
+    } catch (error) {
+      setError(error.message)
+    }
+      
+    finally{
+      setLoading(false)
+    }  
+    }
+
+    
+    useEffect(()=>{
+      google.accounts.id.initialize({
+        client_id:"26511365975-bki0v18hk1vbj7quq2tik7f2mlqn96di.apps.googleusercontent.com",
+        callback: handleCredentialLogin
+      })
+  
+      google.accounts.id.renderButton(
+        document.getElementById("googleSignInDiv"),
+        {theme:"outline", size:"large",width:"100%"}
+      )
+    },[])
+ 
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +75,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5002/api/v1/users/login",
+        "http://localhost:5002/api/v1/auth/login",
         {
           method: "POST",
           headers: {
@@ -53,6 +101,8 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
@@ -140,6 +190,14 @@ const Login = () => {
             >
               {loading ? "Logging in..." : "Login"}
             </button>
+
+          <div
+          id="googleSignInDiv"
+          className="w-full flex justify-center"
+          
+          >
+
+          </div>
           </form>
 
           {/* Register */}
