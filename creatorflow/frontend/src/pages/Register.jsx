@@ -40,7 +40,7 @@ const Register = () => {
         throw new Error(data.message || "Google Login Failed") ;     }
 
         console.log("Google Login Successful",data);
-        navigate("/")
+        window.location.href = "/";
         
     } catch (error) {
       setError(error.message)
@@ -60,7 +60,7 @@ const Register = () => {
   
       google.accounts.id.renderButton(
         document.getElementById("googleSignUpDiv"),
-        {theme:"outline", size:"large",width:"100%"}
+        {theme:"outline", size:"large",width:"350"}
       )
     },[])
 
@@ -99,7 +99,7 @@ const data = await response.json();
     }
 
     console.log("Registration Successful",data);
-    navigate("/")
+   window.location.href = "/";
     
 
 } catch (error) {

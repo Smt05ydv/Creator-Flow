@@ -38,7 +38,7 @@ import { registerUser,
 
 
   router.route("/logout").post(verifyJWT, logout);
-router.route("/current-user").get(verifyJWT, getCurrentUser);
+router.route("/current-user").post(verifyJWT, getCurrentUser);
 router
   .route("/change-password")
   .post(

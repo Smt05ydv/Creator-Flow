@@ -30,15 +30,19 @@ const Dashboard = () => {
             credentials:"include",
              
         },)
+         console.log("Dashboard status:", response.status);
+
        const data= await response.json()
            if (!response.ok) {
-            throw new error (data.message || "failed to fetch dahboard")
+            throw new Error (data.message || "failed to fetch dahboard")
 
            }
 
            setDashboardData(data.data);
     } catch (error) {
+      console.log("Dashboard error:", error);
       setError(error.message)
+      
     }
     finally{
       setLoading(false);
@@ -56,9 +60,9 @@ const Dashboard = () => {
       );
       const data = await response.json()
       if (!response.ok){
-        throw new error(data.message || "upcoming promotions fetching failed")
+        throw new Error(data.message || "upcoming promotions fetching failed")
       }
-      setUpcomingPromotions(data.data.UpcomingPromotions);
+      setUpcomingPromotions(data.data.upcomingPromotions);
     } catch (error) {
         console.log(error.message);
         

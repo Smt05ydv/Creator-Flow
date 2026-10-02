@@ -239,6 +239,7 @@ const login= asyncHandler(async(req,res)=>{
     const options:CookieOptions= {
         httpOnly:true,
         secure:false,
+        sameSite: "lax" as const,
     };
 
     return res
@@ -302,7 +303,7 @@ const getCurrentUser= asyncHandler(async(req,res)=>{
             .status(200)
             .json(
                 new ApiResponse(
-                    200,req.user ,"Current user fetched successfully"
+                    200,{user:req.user},"Current user fetched successfully"
                 )
             );
 

@@ -1,6 +1,6 @@
 
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link,useNavigate} from 'react-router'
 import { 
   Bell,
   User,
@@ -10,6 +10,10 @@ import {
   LogIn,
   UserPlus,
   Info,
+    UserCircle,
+  Settings,
+  KeyRound,
+  LogOut,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Outlet } from 'react-router'
@@ -17,9 +21,65 @@ import Sidebar from './Sidebar'
 const Layout=()=> {
 
     const[sidebarOpen,setSidebarOpen] = useState(false)
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+    const [authLoading,setAuthLoading]= useState(true);
     const [profileOpen, setProfileOpen] = useState(false);
     const {theme,setTheme}= useTheme()
+    const navigate=useNavigate();
+
+    useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5002/api/v1/auth/current-user",
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      console.log("CURRENT USER STATUS:", response.status);
+
+      const data = await response.json();
+
+      console.log("CURRENT USER DATA:", data);
+
+      if (response.ok) {
+        console.log("SETTING USER:", data.data.user);
+        setUser(data.data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("CURRENT USER ERROR:", error);
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
+
+    const handleLogout= async()=>{
+      try {
+        const response= await fetch("http://localhost:5002/api/v1/auth/logout",
+          {
+            method:"POST",
+            credentials:"include"
+          }
+        )
+        if (response.ok){
+          
+          setUser(null)
+          setProfileOpen(false)
+          navigate("/login")
+        }
+      } catch (error) {
+        console.log("Logout failed:",error);
+        
+      }
+    }
     
   return (
     <div className="min-h-screen" >
@@ -86,7 +146,7 @@ const Layout=()=> {
 {profileOpen && (
   <div className="absolute right-0 top-12 w-60 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl p-2 z-50">
 
-    {!isLoggedIn ? (
+    {!user? (
       <>
         {/* Account */}
         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -140,8 +200,11 @@ const Layout=()=> {
         {/* User */}
         <div className="px-3 py-3 mb-1">
           <p className="font-semibold text-gray-900 dark:text-white">
-            Sumit
+            {user?.fullname || user?.username}
           </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+  {user?.email}
+</p>
 
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Manage your account
@@ -187,6 +250,7 @@ const Layout=()=> {
           text-red-500
           hover:bg-red-50 dark:hover:bg-red-950
           transition"
+          onClick={handleLogout}
         >
           <LogOut className="w-5 h-5" />
           <span>Logout</span>

@@ -35,7 +35,7 @@ const Login = () => {
         throw new Error(data.message || "Google Login Failed") ;     }
 
         console.log("Google Login Successful",data);
-        navigate("/")
+        window.location.href = "/";
         
     } catch (error) {
       setError(error.message)
@@ -55,7 +55,7 @@ const Login = () => {
   
       google.accounts.id.renderButton(
         document.getElementById("googleSignInDiv"),
-        {theme:"outline", size:"large",width:"100%"}
+        {theme:"outline", size:"large",width:"350"}
       )
     },[])
  
@@ -94,7 +94,7 @@ const Login = () => {
 
       console.log("Login successful:", data);
 
-      navigate("/");
+       window.location.href = "/";
     } catch (error) {
       setError(error.message);
     } finally {
