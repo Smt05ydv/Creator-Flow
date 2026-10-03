@@ -1,14 +1,112 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Plus, ChevronDown, ArrowRight, Copy, Pencil } from "lucide-react";
 
-import { promotions } from "../data/data";
 
 const Promotions = () => {
   const [addPromotion, setAddPromotion] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [addDeliverables, setAddDeliverables] = useState([]);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
+   
+  const[promotions,setPromotions]= useState([]);
+  const[putPromotions,setPutPromotions]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[error,setError]=useState("");
+
+   const postAddPromotions=async()=>{
+    try {
+
+      setLoading(true);
+      setError("");
+      const response= await fetch("http://localhost:5002/api/v1/promotions/addPromotion",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type" : "application/json"
+          },
+          credentials:"include",
+          body:JSON.stringify({
+             brand: addCard.brand,
+          platform: addCard.platform,
+          campaign: addCard.campaign,
+          amount: Number(addCard.amount),
+          dueDate: addCard.dueDate,
+          deliverables: addDeliverables,
+          payment: addCard.payment,
+          productReceived: addCard.productReceived,
+          contentCreated: addCard.contentCreated,
+          posted: addCard.posted,
+          })
+
+        }
+      )
+      const data =await response.json()
+    
+      if(!response.ok){
+       throw new Error(data.message || "failed to Add promotion")
+        
+      }
+      setPromotions((prev)=>[...prev,data.data.promotion]);
+
+      setAddPromotion(false)
+      setAddCard({
+        brand: "",
+    platform: "",
+    campaign: "",
+    amount: "",
+    dueDate: "",
+    deliverables: [],
+    payment: "",
+    productReceived: false,
+    contentCreated: false,
+    posted: false,
+      })
+
+      setAddDeliverables([]);
+          
+    } catch (error) {
+      console.error("Failed to fetch promotions:",error)
+      setError(error.message)
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
+  const fetchPromotions=async()=>{
+    try {
+
+      setLoading(true);
+      setError("");
+      const response= await fetch("http://localhost:5002/api/v1/promotions",
+        {
+          method:"GET",
+          credentials:"include",
+
+        }
+      )
+      const data =await response.json()
+    
+      if(!response.ok){
+       throw new Error(data.message || "failed to fetch promotions")
+        
+      }
+      setPromotions(data.data.promotions)
+          
+    } catch (error) {
+      console.error("Failed to fetch promotions:",error)
+      setError(error.message)
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
+  useEffect(()=>{
+    fetchPromotions()
+   
+  },[])
 
   const [editForm, setEditForm] = useState({
     platform: "",
@@ -32,7 +130,7 @@ const Promotions = () => {
     posted: false,
   });
 
-  const [promotionList, setPromotionList] = useState(promotions);
+ 
 
   function addNewDeliverable() {
     setAddDeliverables([...addDeliverables, ""]);
@@ -147,7 +245,7 @@ const Promotions = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
 
-  const filterPromotions = promotionList.filter((promotion) => {
+  const filterPromotions = promotions.filter((promotion) => {
     const matchesSearch =
       promotion.brand.toLowerCase().includes(search.toLowerCase()) ||
       promotion.platform.toLowerCase().includes(search.toLowerCase()) ||
@@ -159,6 +257,8 @@ const Promotions = () => {
 
     return matchesSearch && matchesFilter;
   });
+
+  
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white px-8 py-8">
@@ -646,7 +746,7 @@ const Promotions = () => {
               </button>
 
               <button
-                onClick={saveCard}
+                onClick={postAddPromotions}
                 className="
                   px-5 py-2.5
                   rounded-lg

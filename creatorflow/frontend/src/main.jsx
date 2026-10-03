@@ -15,6 +15,8 @@ import Register from "./pages/Register.jsx";
 import Login from './pages/Login.jsx'
 import AboutUs from './pages/AboutUs.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
+import Profile from './pages/Profile.jsx'
+import ChangePassword from './pages/ChangePassword.jsx'
 
 
 
@@ -26,6 +28,9 @@ const router= createBrowserRouter(createRoutesFromElements (
   <Route path = '/' element= {<Layout/>}>
     <Route index element= {<Dashboard/>}/>
     <Route path="register" element={<Register />} />
+     <Route path="profile" element={<Profile />} />
+     <Route path="change-password" element={<ChangePassword />} />
+
      <Route path="login" element={<Login />} />
      <Route path="forgot-password" element={<ForgotPassword />} />
 

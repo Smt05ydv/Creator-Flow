@@ -1,12 +1,12 @@
 import { useState,useEffect} from "react";
-import { Link,useNavigate, } from "react-router";
+import { Link } from "react-router";
 
 
 
 
 const Register = () => {
 
-  const navigate=useNavigate();
+ 
   const [formData,setFormData] = useState({
     fullname:"",
     username:"",
@@ -99,7 +99,7 @@ const data = await response.json();
     }
 
     console.log("Registration Successful",data);
-   window.location.href = "/";
+   window.location.href = "/login";
     
 
 } catch (error) {

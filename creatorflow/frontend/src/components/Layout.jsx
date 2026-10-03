@@ -213,15 +213,16 @@ const Layout=()=> {
 
         <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
 
-        <button
+      <Link to="/profile"
           className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
           text-gray-700 dark:text-gray-200
           hover:bg-gray-100 dark:hover:bg-gray-800
           transition"
+          onClick={()=>setProfileOpen(false)}
         >
           <UserCircle className="w-5 h-5" />
           <span>Profile</span>
-        </button>
+        </Link>
 
         <button
           className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
@@ -233,15 +234,16 @@ const Layout=()=> {
           <span>Settings</span>
         </button>
 
-        <button
+        <Link to = "/change-password"
           className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
           text-gray-700 dark:text-gray-200
           hover:bg-gray-100 dark:hover:bg-gray-800
           transition"
+          onClick={()=>setProfileOpen(false)}
         >
           <KeyRound className="w-5 h-5" />
           <span>Change Password</span>
-        </button>
+        </Link>
 
         <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
 
