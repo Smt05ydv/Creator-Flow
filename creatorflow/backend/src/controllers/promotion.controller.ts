@@ -2,6 +2,7 @@ import { Promotion } from "../models/promotion.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+import mongoose from "mongoose";
 
 const addPromotion= asyncHandler(async(req,res)=>{
     
@@ -96,20 +97,27 @@ const editPromotion= asyncHandler(async(req,res)=>{
 
 const deletePromotion= asyncHandler(async(req,res)=>{
     const {id}= req.params
-    const promotion = await Promotion.findById({_id: id,
+
+  if (!id || Array.isArray(id)) {
+    throw new ApiError(400, "Invalid promotion id");
+  }
+
+     if (!req.user) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+    const promotion = await Promotion.findOneAndDelete({_id: id,
   userId: req.user?._id})
 
      if(!promotion){
         throw new ApiError(404,"promotion not found")
     }
-    await promotion.deleteOne()
-
+    
     
 
     return res
            .status(200)
            .json(
-            new ApiResponse(200, [],"promotion deleted successfully")
+            new ApiResponse(200, {promotion},"promotion deleted successfully")
            )
 })
 

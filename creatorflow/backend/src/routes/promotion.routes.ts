@@ -7,13 +7,14 @@ import { addPromotion, deletePromotion, editPromotion, getAllPromotions, getCurr
 const router= Router();
 
 router.route("/addPromotion").post(verifyJWT,addPromotion);
+router.route("/:id").put(verifyJWT,editPromotion);
 router.route("/").get(verifyJWT,getAllPromotions);
 router.get("/test-get", (req, res) => {
     res.send("GET ROUTE WORKS");
 });
 
 router.route("/:id").get(verifyJWT,getCurrentPromotion);
-router.route("/:id").put(verifyJWT,editPromotion);
+
 router.route("/:id").delete(verifyJWT,deletePromotion);
 
 

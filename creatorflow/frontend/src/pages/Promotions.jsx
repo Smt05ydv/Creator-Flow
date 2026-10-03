@@ -13,6 +13,98 @@ const Promotions = () => {
   const[putPromotions,setPutPromotions]=useState([]);
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState("");
+  const [editForm, setEditForm] = useState({
+    _id:"",
+    platform: "",
+    campaign: "",
+    amount: "",
+    dueDate: "",
+    deliverables: [],
+    payment: "",
+    productReceived: false,
+    contentCreated: false,
+    posted: false,
+  });
+
+  const [addCard, setAddCard] = useState({
+    brand: "",
+    platform: "",
+    campaign: "",
+    amount: "",
+    dueDate: "",
+    deliverables: [],
+    payment: "",
+    productReceived: false,
+    contentCreated: false,
+    posted: false,
+  });
+
+
+  const updatePromotions=async()=>{
+    try {
+      const response= await fetch(`http://localhost:5002/api/v1/promotions/${editForm._id}`,
+        {
+          method:"PUT",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          credentials:"include",
+          body:JSON.stringify({
+            platform: editForm.platform,
+    campaign: editForm.campaign,
+    amount: editForm.amount,
+    dueDate: editForm.dueDate,
+    deliverables: addDeliverables,
+    payment: editForm.payment,
+     productReceived: editForm.productReceived,
+          contentCreated: editForm.contentCreated,
+          posted: editForm.posted,
+          })
+        }
+      ) 
+      const data =await response.json()
+      console.log("UPDATE RESPONSE:", data);
+    
+      if(!response.ok){
+       throw new Error(data.message || "failed to Add promotion")
+        
+      }
+     setPromotions((prev) =>
+  prev.map((promotion) =>
+    promotion._id === data.data.editedpromotion._id
+      ? data.data.editedpromotion
+      : promotion
+  )
+);
+
+      setEditOpen(false);
+
+      setEditForm({
+        _id: promotions._id,
+  brand: promotions.brand,
+  platform: promotions.platform,
+  campaign: promotions.campaign,
+  amount: promotions.amount,
+  dueDate: promotions.dueDate,
+  deliverables: promotions.deliverables || [],
+  payment: promotions.payment,
+  productReceived: promotions.productReceived,
+  contentCreated: promotions.contentCreated,
+  posted: promotions.posted,
+      })
+
+      setAddDeliverables([]);
+
+    
+    } catch (error) {
+      console.error("Failed to fetch promotions:",error)
+      setError(error.message)
+    }
+    finally{
+      setLoading(false);
+    }
+    
+  }
 
    const postAddPromotions=async()=>{
     try {
@@ -88,10 +180,15 @@ const Promotions = () => {
       )
       const data =await response.json()
     
+
+    
+
+    
       if(!response.ok){
        throw new Error(data.message || "failed to fetch promotions")
         
       }
+       
       setPromotions(data.data.promotions)
           
     } catch (error) {
@@ -102,33 +199,44 @@ const Promotions = () => {
       setLoading(false);
     }
   }
+const deletePromotion = async (id) => {
+  try {
+    setLoading(true);
+    setError("");
 
+    const response = await fetch(
+      `http://localhost:5002/api/v1/promotions/${id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    console.log("DELETE RESPONSE:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to delete promotion");
+    }
+
+    setPromotions((prev) =>
+      prev.filter((promotion) => promotion._id !== id)
+    );
+
+  } catch (error) {
+    console.error("Failed to delete promotion:", error);
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(()=>{
     fetchPromotions()
    
   },[])
 
-  const [editForm, setEditForm] = useState({
-    platform: "",
-    campaign: "",
-    amount: "",
-    dueDate: "",
-    deliverables: [],
-    payment: "",
-  });
-
-  const [addCard, setAddCard] = useState({
-    brand: "",
-    platform: "",
-    campaign: "",
-    amount: "",
-    dueDate: "",
-    deliverables: [],
-    payment: "",
-    productReceived: false,
-    contentCreated: false,
-    posted: false,
-  });
+ 
 
  
 
@@ -236,11 +344,7 @@ const Promotions = () => {
     );
   }
 
-  function deletePromotion(id) {
-    setPromotionList(
-      promotionList.filter((promotion) => promotion.id !== id)
-    );
-  }
+  
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
@@ -339,7 +443,7 @@ const Promotions = () => {
       <div className="mt-10 max-w-3xl">
         {filterPromotions.map((promotion) => (
           <div
-            key={promotion.id}
+            key={promotion._id}
             className="
               rounded-xl
               border border-gray-200 dark:border-gray-700
@@ -436,14 +540,20 @@ const Promotions = () => {
                     setSelectedPromotion(promotion);
 
                     setEditForm({
-                      platform: promotion.platform,
-                      campaign: promotion.campaign,
-                      amount: promotion.amount,
-                      dueDate: promotion.dueDate,
-                      deliverables: promotion.deliverables || [],
-                      payment: promotion.payment,
+                    _id: promotion._id,
+                         brand: promotion.brand,
+                         platform: promotion.platform,
+                         campaign: promotion.campaign,
+                         amount: promotion.amount,
+                         dueDate: promotion.dueDate,
+                         deliverables: promotion.deliverables || [],
+                         payment: promotion.payment,
+                         productReceived: promotion.productReceived,
+                         contentCreated: promotion.contentCreated,
+                         posted: promotion.posted,
                     });
-
+                             
+           setAddDeliverables(promotion.deliverables || []);
                     setEditOpen(true);
                   }}
                   className="
@@ -458,15 +568,7 @@ const Promotions = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delte this promotion?"
-                      )
-                    ) {
-                      deletePromotion(promotion.id);
-                    }
-                  }}
+                  onClick={() => deletePromotion(promotion._id)}
                   className="font-medium text-red-500 hover:text-red-600 transition"
                 >
                   Delete
@@ -787,23 +889,28 @@ const Promotions = () => {
                 Brand
               </label>
 
-              <div
+              
+                 <input
+                type="text"
+                value={editForm.brand}
+                onChange={(e) =>
+                  setEditForm({
+                    ...editForm,
+                    brand: e.target.value,
+                  })
+                }
                 className="
                   w-full
                   px-4 py-3
                   rounded-lg
-                  bg-gray-100 dark:bg-gray-800
-                  border border-gray-200 dark:border-gray-700
-                  text-gray-500 dark:text-gray-300
-                  flex items-center justify-between
+                  border border-gray-300 dark:border-gray-600
+                  bg-white dark:bg-gray-800
+                  text-gray-900 dark:text-white
+                  outline-none
+                  focus:border-blue-500
                 "
-              >
-                <span>Nike</span>
-
-                <span className="text-sm">
-                  🔒 Fixed
-                </span>
-              </div>
+              />
+              
             </div>
 
             {/* Platform */}
@@ -1033,7 +1140,7 @@ const Promotions = () => {
               </button>
 
               <button
-                onClick={saveChanges}
+                onClick={updatePromotions}
                 className="
                   px-5 py-2.5
                   rounded-lg
