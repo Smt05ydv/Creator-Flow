@@ -70,12 +70,8 @@ const Sidebar = ({onClose}) => {
           <span>Calender</span>
         </button></Link>
 
-        {/* Settings */}
-        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
-           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
-        </button>
+        
+        
 
       </div>
        

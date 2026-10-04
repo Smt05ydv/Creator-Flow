@@ -8,7 +8,8 @@ const Earnings = () => {
   const[error,setError]=useState("")
 const [loading,setLoading]=useState(false);
 const[earnings,setEarnings]=useState(null);
-const[platformEarnings,setPlatformEarnings]=useState(null)
+const[platformEarnings,setPlatformEarnings]=useState(null);
+const[recentPayments,setRecentPayments]=useState([]);
 
 {loading && (
   <p className="text-gray-500 dark:text-gray-400">
@@ -62,16 +63,38 @@ const fetchPlatformEarnings= async()=>{
   }
 };
 
+   const fetchRecentPayments=async()=>{
+    try {
+      const response= await fetch("http://localhost:5002/api/v1/earnings/recent-payments",
+        {
+          method:"GET",
+          credentials:"include",
+        },
+
+      );
+      const data = await response.json()
+      
+      if (!response.ok){
+        throw new Error(data.message || "Recent-Payments fetching failed")
+      }
+      setRecentPayments(data.data.payments);
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+   };
+
 
 
 useEffect(()=>{
   fetchEarnings();
   fetchPlatformEarnings();
+  fetchRecentPayments();
 },[])
 
 
   return (
-  <div className="min-h-screen mt-10 max-w-5xl space-y-4
+  <div className="min-h-screen mt-10 max-w-5xl space-y-4 mx-auto
    text-gray-900 dark:text-white">
   <div className='flex justify-center text-center'>
    <h1 className='text-3xl font-semibold '> Earnings</h1>
@@ -198,70 +221,46 @@ useEffect(()=>{
 
     </div>
   </div>
-   <div className='flex justify-center text-center'>
-   <h1 className='text-3xl font-semibold '> Recent Payments</h1>
-   </div>
+  
 
-  {/* Instagram */}
-  <div className="rounded-xl border border-gray-200 dark:border-gray-700
-   bg-white dark:bg-gray-900 p-5 shadow-sm ">
-    <div className="flex items-center justify-between">
-      
-      <div className="flex items-center gap-0">
-        
-        <p className="font-semibold text-lg ">
-         Nike
-        </p>
-      </div>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+    Recent Payments
+  </h2>
 
-      <p className="font-semibold text-lg">
-        30000
+  <div className="mt-4 space-y-3">
+    {recentPayments.length > 0 ? (
+      recentPayments.map((promotion) => (
+        // promotion card here
+          <div 
+          key={promotion._id}
+          className="flex items-center justify-between py-4 
+          border-b border-gray-200 dark:border-gray-700">
+            <span className="w-1/3 font-medium">
+              {promotion.brand}
+            </span>
+
+           <span className="w-1/3 text-gray-500 dark:text-gray-400">
+              {promotion.platform}
+            </span>
+
+            <span className="w-1/3 text-right font-semibold">
+              ₹{promotion.amount}
+            </span>
+
+             <span className="w-1/3 text-right font-semibold">
+              {promotion.dueDate}
+            </span>
+          </div>
+      ))
+    ) : (
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+       No Recent Payments
       </p>
-     <p className="font-semibold text-lg
-      text-green-600 dark:text-green-400">
-  Received
-</p>
-
-    </div>
-    <div className="flex items-center justify-between">
-      
-      <div className="flex items-center gap-0">
-        
-        <p className="font-semibold text-lg ">
-         Boat
-        </p>
-      </div>
-
-      <p className="font-semibold text-lg">
-        1000
-      </p>
-     <p className="font-semibold text-lg
-      text-yellow-600 dark:text-yellow-400">
-  Pending
-</p>
-
-    </div>
-    <div className="flex items-center justify-between">
-      
-      <div className="flex items-center gap-0">
-        
-        <p className="font-semibold text-lg ">
-         XYZ
-        </p>
-      </div>
-
-      <p className="font-semibold text-lg">
-        30000
-      </p>
-      <p className="font-semibold text-lg
-       text-green-600 dark:text-green-400">
-  Received
-</p>
-      
-
-    </div>
+    )}
   </div>
-
+</div>
+ 
 
 </div>
   )

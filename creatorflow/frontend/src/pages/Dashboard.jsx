@@ -13,12 +13,14 @@ const Dashboard = () => {
     const[dashboardData,setDashboardData]=useState(null);
     const[loading,setLoading]=useState(false);
     const[error,setError]=useState("");
+    const[user,setUser]=useState(null);
     const [UpcomingPromotions,setUpcomingPromotions]= useState([]);
 {loading && (
   <p className="text-gray-500 dark:text-gray-400">
     Loading dashboard...
   </p>
 )}
+
    const fetchDashboard=async()=>{
     try {
       setError("")
@@ -69,9 +71,33 @@ const Dashboard = () => {
     }
    };
 
+   const fetchCurrentUser = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:5002/api/v1/auth/current-user",
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+   
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch current user");
+    }
+
+    setUser(data.data.user);
+  } catch (error) {
+    console.log("Current user error:", error.message);
+  }
+};
+
    useEffect(() => {
   fetchDashboard();
   fetchUpcomingPromotions();
+  fetchCurrentUser();
 }, []);
 
 
@@ -90,7 +116,7 @@ const Dashboard = () => {
         </h1>
 
         <h1 className="text-blue-400 font-bold text-4xl">
-          SUMIT
+          {user?.fullname || user?.username}
         </h1>
       </div>
 
@@ -160,32 +186,39 @@ const Dashboard = () => {
 
       {/* Upcoming Promotions */}
      
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-8 px-6">
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200
+       dark:border-gray-700 rounded-xl p-5 shadow-sm">
+         
+  <div className="font-bold text-lg text-center text-gray-900 dark:text-white
+  bg-white dark:bg-gray-900 border border-gray-200
+       dark:border-gray-700 rounded-xl p-5 shadow-sm ">
     Upcoming Promotions
-  </h2>
+  </div> 
 
   <div className="mt-4 space-y-3">
     {UpcomingPromotions.length > 0 ? (
       UpcomingPromotions.map((promotion) => (
         // promotion card here
-          <div className="flex items-center justify-between py-4 
+          <div
+           key={promotion._id}
+          className="flex items-center justify-between py-4 
           border-b border-gray-200 dark:border-gray-700">
             <span className="w-1/3 font-medium">
-              {promotions.brand}
+              {promotion.brand}
             </span>
 
            <span className="w-1/3 text-gray-500 dark:text-gray-400">
-              {promotions.platform}
+              {promotion.platform}
             </span>
 
             <span className="w-1/3 text-right font-semibold">
-              ₹{promotions.amount}
+              ₹{promotion.amount}
             </span>
 
              <span className="w-1/3 text-right font-semibold">
-              {promotions.dueDate}
+              {promotion.dueDate}
             </span>
           </div>
       ))
@@ -196,8 +229,10 @@ const Dashboard = () => {
     )}
   </div>
 </div>
+</div>
+</div>
       
-    </div>
+    
   )
 }
 

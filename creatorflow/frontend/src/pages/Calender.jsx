@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   format,
   addMonths,
@@ -21,24 +21,13 @@ const Calendar = () => {
 
   // Current month being displayed
   const [currentDate, setCurrentDate] = useState(new Date());
+  const[promotions,setPromotions]=useState([]);
+  const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
 
   // Static events for now
   // Later these will come from MongoDB
-  const [events] = useState([
-    {
-      id: 1,
-      title: "Nike Promotion",
-      date: new Date(2026, 8, 5),
-      amount: "₹30,000",
-    },
-    {
-      id: 2,
-      title: "Boat Promotion",
-      date: new Date(2026, 8, 10),
-      amount: "₹45,000",
-    },
-  ]);
-
+  
 
   // Go to previous month
   const previousMonth = () => {
@@ -76,18 +65,58 @@ const Calendar = () => {
 
   // Find which day of the week the month starts on
   const startingDay = getDay(start);
+    const fetchPromotions=async()=>{
+    try {
+
+      setLoading(true);
+      setError("");
+      const response= await fetch("http://localhost:5002/api/v1/promotions",
+        {
+          method:"GET",
+          credentials:"include",
+
+        }
+      )
+      const data =await response.json()
+    
+
+    
+
+    
+      if(!response.ok){
+       throw new Error(data.message || "failed to fetch promotions")
+        
+      }
+       
+      setPromotions(data.data.promotions)
+          
+    } catch (error) {
+      console.error("Failed to fetch promotions:",error)
+      setError(error.message)
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
+  useEffect(()=>{
+    fetchPromotions();
+  },[]);
+
+
 
 
   // Get events for a particular date
   const getEventsForDay = (day) => {
-    return events.filter((event) =>
-      isSameDay(event.date, day)
+    return promotions.filter((promotion) =>
+      isSameDay(new Date(promotion.dueDate), day)
     );
   };
+  
 
-
+ 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 px-8 py-8">
+    <div className="min-h-screen bg-white dark:bg-gray-900 px-8 py-8 ">
 
       {/* Page Header */}
       <div className="flex items-center justify-between">
@@ -126,6 +155,7 @@ const Calendar = () => {
       <div className="
         mt-8
         max-w-5xl
+        mx-auto
         rounded-2xl
         border border-gray-200 dark:border-gray-700
         bg-white dark:bg-gray-900
@@ -275,10 +305,10 @@ const Calendar = () => {
                 {/* Events */}
                 <div className="mt-2 space-y-1">
 
-                  {dayEvents.map((event) => (
+                  {dayEvents.map((promotion) => (
 
                     <div
-                      key={event.id}
+                      key={promotion._id}
                       className="
                         rounded-md
                         bg-blue-50
@@ -291,11 +321,11 @@ const Calendar = () => {
                     >
 
                       <p>
-                        {event.title}
+                        {promotion.brand}
                       </p>
 
                       <p className="text-blue-500">
-                        {event.amount}
+                        ₹{promotion.amount}
                       </p>
 
                     </div>

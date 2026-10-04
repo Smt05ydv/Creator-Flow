@@ -18,8 +18,7 @@ const addPromotion= asyncHandler(async(req,res)=>{
 
    const promotion=  await Promotion.create({
        
-          userId,
-      brand,platform,campaign,amount,dueDate,deliverables,payment,
+          userId,brand,platform,campaign,amount,dueDate,deliverables,payment
     });
 
     

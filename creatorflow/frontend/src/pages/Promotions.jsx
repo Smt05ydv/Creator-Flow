@@ -7,10 +7,10 @@ const Promotions = () => {
   const [addPromotion, setAddPromotion] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [addDeliverables, setAddDeliverables] = useState([]);
-  const [selectedPromotion, setSelectedPromotion] = useState(null);
+  
    
   const[promotions,setPromotions]= useState([]);
-  const[putPromotions,setPutPromotions]=useState([]);
+ 
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState("");
   const [editForm, setEditForm] = useState({
@@ -257,79 +257,9 @@ const deletePromotion = async (id) => {
     setAddDeliverables(updatedDeliverables);
   }
 
-  function saveCard() {
-    if (
-      !addCard.brand ||
-      !addCard.platform ||
-      !addCard.campaign ||
-      !addCard.amount ||
-      !addCard.dueDate ||
-      !addCard.payment ||
-      addDeliverables.length === 0
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
+ 
 
-    // Amount validation
-    if (Number(addCard.amount) <= 0) {
-      alert("Amount must be greater than 0");
-      return;
-    }
-
-    const newPromotion = {
-      id: Date.now(),
-      brand: addCard.brand,
-      platform: addCard.platform,
-      campaign: addCard.campaign,
-      amount: addCard.amount,
-      dueDate: addCard.dueDate,
-      payment: addCard.payment,
-      deliverables: addDeliverables,
-      productReceived: addCard.productReceived,
-      contentCreated: addCard.contentCreated,
-      posted: addCard.posted,
-    };
-
-    setPromotionList([...promotionList, newPromotion]);
-
-    setAddPromotion(false);
-
-    setAddCard({
-      brand: "",
-      platform: "",
-      campaign: "",
-      amount: "",
-      dueDate: "",
-      deliverables: [],
-      payment: "",
-      productReceived: false,
-      contentCreated: false,
-      posted: false,
-    });
-
-    setAddDeliverables([]);
-  }
-
-  function saveChanges() {
-    setPromotionList(
-      promotionList.map((promotion) =>
-        promotion.id === selectedPromotion.id
-          ? {
-              ...promotion,
-              platform: editForm.platform,
-              campaign: editForm.campaign,
-              amount: editForm.amount,
-              dueDate: editForm.dueDate,
-              deliverables: editForm.deliverables,
-              payment: editForm.payment,
-            }
-          : promotion
-      )
-    );
-
-    setEditOpen(false);
-  }
+  
 
   function updateProgress(id, field) {
     setPromotionList(
@@ -440,11 +370,12 @@ const deletePromotion = async (id) => {
       </div>
 
       {/* Promotion Card */}
-      <div className="mt-10 max-w-3xl">
+      <div className="mt-10 max-w-3xl mx-auto space-y-5">
         {filterPromotions.map((promotion) => (
           <div
             key={promotion._id}
             className="
+            
               rounded-xl
               border border-gray-200 dark:border-gray-700
               bg-white dark:bg-gray-900
@@ -536,26 +467,28 @@ const deletePromotion = async (id) => {
 
               <div className="flex items-center gap-5">
                 <button
-                  onClick={() => {
-                    setSelectedPromotion(promotion);
+                  
 
-                    setEditForm({
-                    _id: promotion._id,
-                         brand: promotion.brand,
-                         platform: promotion.platform,
-                         campaign: promotion.campaign,
-                         amount: promotion.amount,
-                         dueDate: promotion.dueDate,
-                         deliverables: promotion.deliverables || [],
-                         payment: promotion.payment,
-                         productReceived: promotion.productReceived,
-                         contentCreated: promotion.contentCreated,
-                         posted: promotion.posted,
-                    });
-                             
-           setAddDeliverables(promotion.deliverables || []);
-                    setEditOpen(true);
-                  }}
+                     onClick={() => {
+    setEditForm({
+      _id: promotion._id,
+      brand: promotion.brand,
+      platform: promotion.platform,
+      campaign: promotion.campaign,
+      amount: promotion.amount,
+      dueDate: promotion.dueDate,
+      deliverables: promotion.deliverables || [],
+      payment: promotion.payment,
+      productReceived: promotion.productReceived,
+      contentCreated: promotion.contentCreated,
+      posted: promotion.posted,
+    });
+
+    setAddDeliverables(promotion.deliverables || []);
+    setEditOpen(true);
+  }}
+                    
+          
                   className="
                     flex items-center gap-2
                     font-medium

@@ -22,13 +22,32 @@ const AboutUs = () => {
             CREATORFLOW
           </Link>
 
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Link>
+         <div className="flex items-center gap-4">
+  <Link
+    to="/login"
+    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
+               hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+  >
+    Login
+  </Link>
+
+  <Link
+    to="/register"
+    className="px-4 py-2 rounded-lg bg-blue-600 text-white
+               hover:bg-blue-700 transition"
+  >
+    Sign Up
+  </Link>
+
+  <Link
+    to="/"
+    className="flex items-center gap-2 hover:text-blue-400 transition"
+  >
+    ← Back to Dashboard
+  </Link>
+</div>
+
+
         </div>
       </header>
 

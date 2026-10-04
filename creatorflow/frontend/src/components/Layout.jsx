@@ -14,6 +14,7 @@ import {
   Settings,
   KeyRound,
   LogOut,
+  LayoutDashboard
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Outlet } from 'react-router'
@@ -223,16 +224,19 @@ const Layout=()=> {
           <UserCircle className="w-5 h-5" />
           <span>Profile</span>
         </Link>
+        <Link
+       to="/"
+       
+       ><button 
+       
+       onClick={()=>setProfileOpen(false)} 
+       className="flex items-center gap-3 w-full px-4 py-3 rounded-lg
+           hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+          <LayoutDashboard className="w-5 h-5" />
+          <span>Dashboard</span>
+        </button> </Link> 
 
-        <button
-          className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
-          text-gray-700 dark:text-gray-200
-          hover:bg-gray-100 dark:hover:bg-gray-800
-          transition"
-        >
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
-        </button>
+        
 
         <Link to = "/change-password"
           className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
@@ -257,6 +261,16 @@ const Layout=()=> {
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>
+        <Link to="/about-us"
+        onClick={() => setProfileOpen(false)}
+          className="flex items-center gap-3 w-full px-3 py-3 rounded-xl
+          text-gray-700 dark:text-gray-200
+          hover:bg-gray-100 dark:hover:bg-gray-800
+          transition"
+        >
+          <Info className="w-5 h-5" />
+          <span>About Us</span>
+        </Link>
       </>
     )}
   </div>
