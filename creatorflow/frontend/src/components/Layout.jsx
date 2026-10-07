@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from 'react'
-import { Link,useNavigate} from 'react-router'
+import { Link, useNavigate, Outlet } from 'react-router'
+import { SiYoutube, SiInstagram } from "react-icons/si";
+
 import { 
   Bell,
   User,
@@ -13,11 +15,12 @@ import {
     UserCircle,
   Settings,
   KeyRound,
+  ExternalLink,
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { Outlet } from 'react-router'
+
 import Sidebar from './Sidebar'
 const Layout=()=> {
 
@@ -104,6 +107,60 @@ const Layout=()=> {
         </div>
 
         <div className="flex items-center gap-3" >
+ <button
+    onClick={() =>
+      window.open(
+        "https://studio.youtube.com/",
+        "_blank",
+        "noopener,noreferrer"
+      )
+    }
+    className="flex items-center gap-2 px-3 py-2 rounded-lg
+               border border-gray-200 dark:border-gray-700
+               hover:bg-gray-100 dark:hover:bg-gray-800
+               transition"
+    title="Integrate YouTube Studio"
+  >
+    <SiYoutube size={18} />
+
+    <span className="hidden lg:inline text-sm font-medium">
+     YouTube Studio
+    </span>
+      <span className="hidden lg:inline text-xs font-medium px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800">
+      Connect
+    </span>
+
+    <ExternalLink size={14} className="hidden lg:inline" />
+  </button>
+
+
+  {/* Instagram Integration */}
+  <button
+    onClick={() =>
+      window.open(
+        "https://www.instagram.com/accounts/insights/?timeframe=30",
+        "_blank",
+        "noopener,noreferrer"
+      )
+    }
+    className="flex items-center gap-2 px-3 py-2 rounded-lg
+               border border-gray-200 dark:border-gray-700
+               hover:bg-gray-100 dark:hover:bg-gray-800
+               transition"
+    title="Integrate Instagram Dashboard"
+  >
+    <SiInstagram size={18} />
+
+    <span className="hidden lg:inline text-sm font-medium">
+    Instagram Dashboard
+    </span>
+     <span className="hidden lg:inline text-xs font-medium 
+     px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800">
+      Connect
+    </span>
+
+    <ExternalLink size={14} className="hidden lg:inline" />
+  </button>
           <button
   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
   className="flex items-center justify-center w-10 h-10 rounded-full
@@ -116,6 +173,7 @@ const Layout=()=> {
     <Moon className="w-6 h-6" />
   )}
 </button>
+
 
           <div className="relative">
             
