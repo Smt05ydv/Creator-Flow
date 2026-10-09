@@ -85,7 +85,7 @@ import { emailVerificationMailgenContent,
         subject:"please verify your email",
         mailgenContent:emailVerificationMailgenContent(
             user.username,
-            `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedToken}`
+            `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`
         )
     });
 
@@ -98,9 +98,9 @@ import { emailVerificationMailgenContent,
     }
       
     return res
-           .status(200)
+           .status(201)
            .json(
-            new ApiResponse(200,
+            new ApiResponse(201,
                 {user:createdUser},
                 "User registered successfully and verification mail sent to yuor email"
             )

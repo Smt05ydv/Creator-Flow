@@ -93,10 +93,20 @@ try {
  );
  
 
-const data = await response.json();
- if (!response.ok) {
-      throw new Error(data.message || "Registration failed");
-    }
+const responseText = await response.text();
+
+let data;
+
+try {
+    data = JSON.parse(responseText);
+} catch {
+    console.error("Non-JSON response:", responseText);
+    throw new Error("Server returned HTML instead of JSON. Check the backend URL and route.");
+}
+
+if (!response.ok) {
+    throw new Error(data.message || "Registration failed");
+}
 
     console.log("Registration Successful",data);
    window.location.href = "/login";
