@@ -13,10 +13,14 @@ interface AccessTokenPayload extends JwtPayload {
 
     if (!token) {
         throw new ApiError(401,"Unauthorized request") }
-
+          let decodedToken: AccessTokenPayload;
         try {
-            const decodedToken = jwt.verify
-            (token,process.env.ACCESS_TOKEN_SECRET!) as AccessTokenPayload
+            decodedToken = jwt.verify
+            (token,process.env.ACCESS_TOKEN_SECRET!) as AccessTokenPayload }
+             catch (error)  {
+            throw new ApiError(401, "Invalid access token");
+        }
+        
               const user =  await User.findById(decodedToken?._id).
               select(
          "-password -refreshToken -emailVerificationToken -emailVerificationExpiry",
@@ -26,9 +30,7 @@ interface AccessTokenPayload extends JwtPayload {
         throw new ApiError(401,"Invalid access token")   }
         req.user = user ;
         next();                 
-        } catch (error)  {
-            throw new ApiError(401, "Invalid access token");
-        }
+        
         
     
     

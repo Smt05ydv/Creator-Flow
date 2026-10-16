@@ -21,6 +21,43 @@ const userRegisterValidator = () => {
   ];
 };
 
+
+const inboundEmailValidator = ()=>{
+  return [
+    body("recipient")
+        .trim()
+        .notEmpty()
+        .withMessage("Recipient email is required")
+        .isEmail()
+        .withMessage("Invalid recipient email"),
+
+    body("providerMessageId")
+        .trim()
+        .notEmpty()
+        .withMessage("Provider message ID is required"),
+
+    body("from")
+        .trim()
+        .notEmpty()
+        .withMessage("Sender email is required")
+        .isEmail()
+        .withMessage("Invalid sender email"),
+
+    body("subject")
+        .optional()
+        .isString()
+        .withMessage("Subject must be a string"),
+
+    body("textBody")
+        .optional()
+        .isString()
+        .withMessage("Email body must be a string"),
+
+    body("receivedAt")
+        .optional()
+        .isISO8601()
+        .withMessage("Received date must be a valid ISO 8601 date"),
+]};
 const userLoginValidator = () => {
   return [
     body("email").optional().isEmail().withMessage("Email is invalid"),
@@ -66,6 +103,8 @@ export {
   userChangeCurrentPasswordValidator,
   userForgotPasswordValidator,
   userResetForgotPasswordValidator,
+  inboundEmailValidator,
+
   
   
 };

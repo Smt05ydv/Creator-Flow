@@ -10,6 +10,8 @@ import { registerUser,
   forgotPasswordRequest,
   changeCurrentPassword,
   resetForgotPassword,
+  genrateInboundEmailAddress,
+  createSuggestedPromotion,
   googleLogin,} from "../controllers/auth.controller.js"
 
   import { validate } from "../middlewares/validator.middleware.js";
@@ -19,7 +21,10 @@ import { registerUser,
   userForgotPasswordValidator,
   userResetForgotPasswordValidator,
   googleLoginValidator,
+  inboundEmailValidator,
+  
   } from "../validators/index.js"
+  import { testProcessSuggestion } from "../controllers/auth.controller.js";
 
   import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -27,7 +32,11 @@ import { registerUser,
 
   router.route("/register").post(userRegisterValidator(),validate,registerUser)
   router.route("/login").post(userLoginValidator(),validate,login)
+  router.route("/create-suggestion").post(inboundEmailValidator(),validate,createSuggestedPromotion)
   router.route("/google").post(googleLoginValidator(),validate,googleLogin)
+  router
+    .route("/test-process")
+    .post(verifyJWT, testProcessSuggestion);
 
   router.route("/verify-email/:verificationToken").get(verifyEmail)
   router.route("/refresh-token").post(refreshAccessToken)
@@ -50,6 +59,9 @@ router
 router
   .route("/resend-email-verification")
   .post(verifyJWT, resendEmailVerification);
+  router
+  .route("/generate-email-address")
+  .post(verifyJWT,genrateInboundEmailAddress);
 
 export default router;
 

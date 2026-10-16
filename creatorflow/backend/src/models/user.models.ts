@@ -13,6 +13,7 @@ export interface IUser {
 
   username: string;
   email: string;
+  inboundEmail:string | null;
   password?: string;
   googleId?: string;
     authProvider: "local" | "google";
@@ -35,6 +36,7 @@ export interface IUserMethods {
     hashedToken: string;
     tokenExpiry: number;
   };
+  generateInboundEmail():string;
 }
 
 export type UserModel = Model<IUser, {}, IUserMethods>;
@@ -70,6 +72,14 @@ const userSchema= new Schema<IUser, UserModel, IUserMethods>(
             lowercase:true,
             trim:true,
 
+        },
+        inboundEmail:{
+            type:String,
+            
+            default:null,
+            
+            lowercase:true,
+            trim:true,
         },
 
         fullname:{
@@ -112,6 +122,8 @@ authProvider: {
         emailVerificationExpiry:{
             type:Date,
         },
+
+        
 
     },
     {
@@ -170,6 +182,12 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
+userSchema.methods.generateInboundEmail= function(){
+    const token= crypto.randomBytes(16).toString("hex");
+        return  `cf-${token}@inbox.example.com`; 
+
+}
+
 
 userSchema.methods.generateTemporaryToken= function(){
     const unhashedToken= crypto.randomBytes(20).toString("hex");
@@ -188,6 +206,18 @@ userSchema.methods.generateTemporaryToken= function(){
 
 };
 
+userSchema.index({
+    inboundEmail:1,
+},
+{
+    unique:true,
+    partialFilterExpression:{
+        inboundEmail:{
+            $type:"string"
+        },
+    }
+}
+);
 
 
 

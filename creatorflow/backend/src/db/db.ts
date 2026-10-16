@@ -8,9 +8,21 @@ try {
     
 } catch (error) {
     console.log("Mongo DB connection failed",error);
-    process.exit(1);
+   
     
-}
-}
+} }
+
+mongoose.connection.on("disconnected", () => {
+    console.error("MongoDB disconnected");
+});
+
+mongoose.connection.on("reconnected", () => {
+    console.log("MongoDB reconnected");
+});
+
+mongoose.connection.on("error", (error) => {
+    console.error("MongoDB connection error:", error);
+});
+
 
 export default connectDB;

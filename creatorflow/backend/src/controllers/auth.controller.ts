@@ -11,6 +11,7 @@ import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { User  } from "../models/user.models.js";
 
+import { processPromotionSuggestion } from "../services/promotion-suggestion.service.js";
 
 
 
@@ -18,6 +19,7 @@ import { User  } from "../models/user.models.js";
 import { emailVerificationMailgenContent,
     forgotPasswordMailgenContent,
     sendEmail } from "../utils/mail.js";
+import { PromotionSuggestion } from "../models/promotionSuggestion.js";
 
 
 
@@ -40,7 +42,7 @@ import { emailVerificationMailgenContent,
     try {
         const user= await User.findById(userId)
         if(!user){
-            throw new ApiError(409,"User not found")
+            throw new ApiError(404,"User not found")
         }
         const accessToken= user.generateAccessToken();
         const refreshToken=user.generateRefreshToken();
@@ -53,6 +55,149 @@ import { emailVerificationMailgenContent,
         (500,"Something went wrong while genrerating refresh and access token")
     }
  }  
+
+ const genrateInboundEmailAddress = asyncHandler(async(req,res)=>{
+    
+    const user= await User.findById(req.user?._id)
+    if(!user){
+        throw new ApiError(404,"user not found")
+    }
+    if (user.inboundEmail){
+
+
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {
+                        inboundEmailAddress: user.inboundEmail,
+                    },
+                    "Inbound email address retrieved successfully"
+                )
+            );
+        }
+    
+
+    const inboundEmailAddress=user.generateInboundEmail();
+    user.inboundEmail=inboundEmailAddress;
+
+    await user.save();
+       
+
+     return res
+           .status(201)
+           .json(
+            new ApiResponse(201,
+                {inboundEmailAddress:user.inboundEmail},
+                "Inbound Email Address created successfully"
+            )
+        )
+    
+        
+
+ });
+
+ const createSuggestedPromotion= asyncHandler(async(req,res)=>{
+    const {recipient,providerMessageId,from,subject,textBody,receivedAt} =req.body
+    
+    const existedUser=await User.findOne({inboundEmail:recipient?.toLowerCase().trim()})
+
+    if (!existedUser)
+        {
+        throw new ApiError(404,"User does not exist",[])
+    }
+    
+
+    const userId=existedUser._id
+
+    const existedSuggestion= await PromotionSuggestion.findOne({
+        userId, "inboundEmail.providerMessageId":providerMessageId
+    })
+
+     if (existedSuggestion)
+       {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                { suggestion: existedSuggestion },
+                "This email has already been received"
+            )
+        );
+    }
+
+
+    try {
+        const suggestion= await PromotionSuggestion.create({
+        userId,
+         promotionStatus: "PENDING" ,
+            processingStatus: "RECEIVED",
+   inboundEmail: { providerMessageId, 
+    from,
+     subject,
+      textBody,
+       receivedAt },
+   parsedEmail: {
+     brand: null,
+     platform: null,
+     amount: null,
+     dueDate: null,
+    deliverables: [],
+     payment: null,
+     campaign: null
+    }})
+           
+            return res
+           .status(201)
+           .json(
+            new ApiResponse(201,
+                {suggestion},
+                "Suggestion created successfully"
+            )
+           )
+    } catch (error: unknown) {
+    const isDuplicateKey =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === 11000;
+
+    if (!isDuplicateKey) {
+        throw error;
+    }
+
+    const existingSuggestion = await PromotionSuggestion.findOne({
+        userId,
+        "inboundEmail.providerMessageId": providerMessageId,
+    });
+
+    if (existingSuggestion) {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                { suggestion: existingSuggestion },
+                "This email has already been received"
+            )
+        );
+    }
+
+    // A different unique constraint may have failed.
+    throw error;
+}
+ })
+
+  const testProcessSuggestion = asyncHandler(async (req, res) => {
+    const { suggestionId } = req.body;
+
+    const suggestion = await processPromotionSuggestion(suggestionId);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { suggestion },
+            "Suggestion processed successfully"
+        )
+    );
+});
+
 
    const registerUser= asyncHandler(async(req,res)=>{
     const {username,email,password}=req.body
@@ -347,6 +492,8 @@ const verifyEmail= asyncHandler(async(req,res)=>{
 });
 
 
+
+
 const resendEmailVerification= asyncHandler(async(req,res)=>{
     const user= await  User.findById(req.user?._id)
 
@@ -383,6 +530,8 @@ const resendEmailVerification= asyncHandler(async(req,res)=>{
 
 
 });
+
+
 
 const refreshAccessToken = asyncHandler(async(req,res)=>{
   const incomingRefreshToken =
@@ -536,12 +685,15 @@ export {
   googleLogin,
   logout,
   getCurrentUser,
+  createSuggestedPromotion,
   verifyEmail,
   resendEmailVerification,
+  genrateInboundEmailAddress,
   refreshAccessToken,
   forgotPasswordRequest,
   changeCurrentPassword,
   resetForgotPassword,
+  testProcessSuggestion,
 };
 
 
