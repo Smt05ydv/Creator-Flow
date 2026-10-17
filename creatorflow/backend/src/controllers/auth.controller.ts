@@ -12,6 +12,7 @@ import { asyncHandler } from "../utils/async-handler.js";
 import { User  } from "../models/user.models.js";
 
 import { processPromotionSuggestion } from "../services/promotion-suggestion.service.js";
+import { aiExtraction } from "../services/Ai-extraction.service.js";
 
 
 
@@ -679,6 +680,16 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
+export const testAIExtraction = asyncHandler(async (req, res) => {
+    const { suggestionId } = req.body;
+
+    const response = await aiExtraction(suggestionId);
+
+    return res.status(200).json(
+        new ApiResponse(200, response, "AI extraction test completed")
+    );
+});
+
 export {
   registerUser,
   login,
@@ -694,6 +705,7 @@ export {
   changeCurrentPassword,
   resetForgotPassword,
   testProcessSuggestion,
+
 };
 
 

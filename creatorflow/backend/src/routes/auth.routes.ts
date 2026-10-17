@@ -24,7 +24,7 @@ import { registerUser,
   inboundEmailValidator,
   
   } from "../validators/index.js"
-  import { testProcessSuggestion } from "../controllers/auth.controller.js";
+  import { testProcessSuggestion,testAIExtraction } from "../controllers/auth.controller.js";
 
   import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -37,6 +37,7 @@ import { registerUser,
   router
     .route("/test-process")
     .post(verifyJWT, testProcessSuggestion);
+    router.post("/test-ai-extraction", verifyJWT, testAIExtraction);
 
   router.route("/verify-email/:verificationToken").get(verifyEmail)
   router.route("/refresh-token").post(refreshAccessToken)
