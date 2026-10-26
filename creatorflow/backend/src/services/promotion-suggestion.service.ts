@@ -2,6 +2,9 @@
 import mongoose from "mongoose";
 import { PromotionSuggestion } from "../models/promotionSuggestion.js";
 import { ApiError } from "../utils/api-error.js";
+import { aiExtraction } from "./Ai-extraction.service.js";
+
+const STALE_PROCESSING_MS = 10 * 60 * 1000; 
 
 export const processPromotionSuggestion = async (
     suggestionId: string
@@ -9,44 +12,98 @@ export const processPromotionSuggestion = async (
     if (!mongoose.isValidObjectId(suggestionId)) {
         throw new ApiError(400, "Invalid suggestion ID");
     }
+    const now= new Date();
+    const staleBefore=  new Date(now.getTime()-STALE_PROCESSING_MS)
 
-    const suggestion = await PromotionSuggestion.findById(suggestionId);
+   const suggestion = await PromotionSuggestion.findOneAndUpdate(
+    {
+        _id: suggestionId,
+        $or:[
 
-    if (!suggestion) {
+             { processingStatus: "RECEIVED" },
+      {
+        processingStatus: "FAILED",
+        retryCount: { $lt: 3 },
+      },
+            {processingStatus:"PROCESSING",
+                processingStartedAt:{$lt:staleBefore},
+
+            },
+            {
+                    processingStatus: "PROCESSING",
+                    processingStartedAt: null,
+                },
+        ]
+    },
+    {
+        $set: {
+            processingStatus: "PROCESSING",
+             processingStartedAt:now,
+            lastError: null,
+        },
+    },
+    {
+        new: true,
+    }
+);
+
+if (!suggestion) {
+    const existing = await PromotionSuggestion.findById(suggestionId);
+
+    if (!existing) {
         throw new ApiError(404, "Promotion suggestion not found");
     }
 
-    if (suggestion.processingStatus === "COMPLETED") {
-        return suggestion;
+    if (existing.processingStatus === "COMPLETED") {
+        return existing;
     }
 
-    suggestion.processingStatus = "PROCESSING";
-    suggestion.lastError = null;
-    await suggestion.save();
+    throw new ApiError(409, "Suggestion is already being processed");
+}
+    
 
     try {
         // Temporary simulation. AI extraction will replace this later.
-        if (!suggestion.inboundEmail.textBody.trim()) {
-            throw new Error("Email body is empty");
+        await aiExtraction(suggestionId)
+        const updatedSuggestion= await PromotionSuggestion.findById(suggestionId)
+
+          if (!updatedSuggestion) {
+            throw new ApiError(
+                404,
+                "Promotion suggestion not found after processing"
+            );
         }
+       
+        return updatedSuggestion;
+    }  catch (error: unknown) {
+    const errorMessage =
+        error instanceof Error
+            ? error.message.slice(0, 500)
+            : "Unknown processing error";
 
-        // Processing succeeded.
-        suggestion.processingStatus = "COMPLETED";
-        suggestion.lastError = null;
-
-        await suggestion.save();
-        return suggestion;
-    } catch (error: unknown) {
-        suggestion.retryCount += 1;
-        suggestion.processingStatus = "FAILED";
-
-        // Store a safe, bounded error message.
-        suggestion.lastError =
-            error instanceof Error
-                ? error.message.slice(0, 500)
-                : "Unknown processing error";
-
-        await suggestion.save();
-        throw error;
+    try {
+        await PromotionSuggestion.findByIdAndUpdate(
+            suggestionId,
+            {
+                $inc: { retryCount: 1 },
+                $set: {
+                    processingStatus: "FAILED",
+                    processingStartedAt: null,
+                    lastError: errorMessage,
+                },
+            }
+        );
+    } catch (dbError: unknown) {
+        // Log the failure to update MongoDB.
+        console.error(
+            "Failed to update suggestion failure status:",
+            dbError
+        );
     }
+
+    // Preserve and rethrow the original extraction error.
+    throw error;
+}
+    
 };
+

@@ -4,6 +4,7 @@ import crypto from "crypto";
 import type { CookieOptions } from "express";
 import jwt,{type JwtPayload} from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import mongoose from "mongoose";
 
 
 import { ApiError } from "../utils/api-error.js";
@@ -13,6 +14,8 @@ import { User  } from "../models/user.models.js";
 
 import { processPromotionSuggestion } from "../services/promotion-suggestion.service.js";
 import { aiExtraction } from "../services/Ai-extraction.service.js";
+import { createPromotionSuggestion } from "../services/create-promotion-suggestion.service.js";
+import { Promotion } from "../models/promotion.models.js";
 
 
 
@@ -97,93 +100,19 @@ import { PromotionSuggestion } from "../models/promotionSuggestion.js";
 
  });
 
- const createSuggestedPromotion= asyncHandler(async(req,res)=>{
-    const {recipient,providerMessageId,from,subject,textBody,receivedAt} =req.body
-    
-    const existedUser=await User.findOne({inboundEmail:recipient?.toLowerCase().trim()})
+ const createSuggestedPromotion = asyncHandler(async (req, res) => {
+  const result = await createPromotionSuggestion(req.body);
 
-    if (!existedUser)
-        {
-        throw new ApiError(404,"User does not exist",[])
-    }
-    
-
-    const userId=existedUser._id
-
-    const existedSuggestion= await PromotionSuggestion.findOne({
-        userId, "inboundEmail.providerMessageId":providerMessageId
-    })
-
-     if (existedSuggestion)
-       {
-        return res.status(200).json(
-            new ApiResponse(
-                200,
-                { suggestion: existedSuggestion },
-                "This email has already been received"
-            )
-        );
-    }
-
-
-    try {
-        const suggestion= await PromotionSuggestion.create({
-        userId,
-         promotionStatus: "PENDING" ,
-            processingStatus: "RECEIVED",
-   inboundEmail: { providerMessageId, 
-    from,
-     subject,
-      textBody,
-       receivedAt },
-   parsedEmail: {
-     brand: null,
-     platform: null,
-     amount: null,
-     dueDate: null,
-    deliverables: [],
-     payment: null,
-     campaign: null
-    }})
-           
-            return res
-           .status(201)
-           .json(
-            new ApiResponse(201,
-                {suggestion},
-                "Suggestion created successfully"
-            )
-           )
-    } catch (error: unknown) {
-    const isDuplicateKey =
-        typeof error === "object" &&
-        error !== null &&
-        "code" in error &&
-        error.code === 11000;
-
-    if (!isDuplicateKey) {
-        throw error;
-    }
-
-    const existingSuggestion = await PromotionSuggestion.findOne({
-        userId,
-        "inboundEmail.providerMessageId": providerMessageId,
-    });
-
-    if (existingSuggestion) {
-        return res.status(200).json(
-            new ApiResponse(
-                200,
-                { suggestion: existingSuggestion },
-                "This email has already been received"
-            )
-        );
-    }
-
-    // A different unique constraint may have failed.
-    throw error;
-}
- })
+  return res.status(result.duplicate ? 200 : 201).json(
+    new ApiResponse(
+      result.duplicate ? 200 : 201,
+      { suggestion: result.suggestion },
+      result.duplicate
+        ? "This email has already been received"
+        : "Suggestion created successfully"
+    )
+  );
+});
 
   const testProcessSuggestion = asyncHandler(async (req, res) => {
     const { suggestionId } = req.body;
@@ -690,6 +619,365 @@ export const testAIExtraction = asyncHandler(async (req, res) => {
     );
 });
 
+
+const getPromotionSuggestions = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    const suggestions = await PromotionSuggestion.find({
+        userId,
+    })
+        .select("-inboundEmail.textBody")
+        .sort({ "inboundEmail.receivedAt": -1 });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { suggestions },
+            "Promotion suggestions fetched successfully"
+        )
+    );
+});
+
+const getPromotionSuggestionById = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const { suggestionId } = req.params;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    if (
+        typeof suggestionId !== "string" ||
+        !mongoose.isValidObjectId(suggestionId)
+    ) {
+        throw new ApiError(400, "Invalid suggestion ID");
+    }
+
+    const suggestion = await PromotionSuggestion.findOne({
+        _id: suggestionId,
+        userId,
+    }).select("-inboundEmail.textBody");
+
+    if (!suggestion) {
+        throw new ApiError(404, "Promotion suggestion not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { suggestion },
+            "Promotion suggestion fetched successfully"
+        )
+    );
+});
+
+
+const acceptPromotionSuggestion = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const { suggestionId } = req.params;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    if (
+        typeof suggestionId !== "string" ||
+        !mongoose.isValidObjectId(suggestionId)
+    ) {
+        throw new ApiError(400, "Invalid suggestion ID");
+    }
+
+    const session = await mongoose.startSession();
+    let acceptedSuggestion = null;
+
+    try {
+        await session.withTransaction(async () => {
+            const suggestion = await PromotionSuggestion.findOne({
+                _id: suggestionId,
+                userId,
+            }).session(session);
+
+            if (!suggestion) {
+                throw new ApiError(404, "Promotion suggestion not found");
+            }
+
+            if (suggestion.promotionStatus !== "PENDING") {
+                throw new ApiError(
+                    409,
+                    "This suggestion has already been accepted or rejected"
+                );
+            }
+
+            if (suggestion.processingStatus !== "COMPLETED") {
+                throw new ApiError(
+                    409,
+                    "Suggestion extraction must be completed before acceptance"
+                );
+            }
+
+            const parsed = suggestion.parsedEmail;
+
+            if (
+                !parsed.brand?.trim() ||
+                !parsed.platform?.trim() ||
+                parsed.amount == null ||
+                !Number.isFinite(parsed.amount) ||
+                !parsed.dueDate ||
+                Number.isNaN(new Date(parsed.dueDate).getTime()) ||
+                !parsed.campaign?.trim() ||
+                !Array.isArray(parsed.deliverables) ||
+                parsed.deliverables.length === 0 ||
+                !parsed.deliverables.every(
+                    (item) => typeof item === "string" && item.trim().length > 0
+                ) ||
+                !["Pending", "Paid", "Partially Paid", null].includes(
+                    parsed.payment
+                )
+            ) {
+                throw new ApiError(
+                    400,
+                    "Suggestion is missing valid required promotion details"
+                );
+            }
+
+            const promotions = await Promotion.create(
+                [
+                    {
+                        userId: suggestion.userId,
+                        brand: parsed.brand,
+                        platform: parsed.platform,
+                        amount: parsed.amount,
+                        dueDate: parsed.dueDate,
+                        deliverables: parsed.deliverables,
+                        payment: parsed.payment ?? "Pending",
+                        campaign: parsed.campaign,
+                    },
+                ],
+                { session }
+            );
+            const promotion = promotions[0];
+
+if (!promotion) {
+    throw new ApiError(500, "Failed to create promotion");
+}
+
+            const updatedSuggestion =
+                await PromotionSuggestion.findOneAndUpdate(
+                    {
+                        _id: suggestion._id,
+                        userId,
+                        promotionStatus: "PENDING",
+                        promotionId: null,
+                    },
+                    {
+                        $set: {
+                            promotionStatus: "ACCEPTED",
+                            promotionId: promotion._id,
+                        },
+                    },
+                    {
+                        new: true,
+                        runValidators: true,
+                        session,
+                    }
+                );
+
+            if (!updatedSuggestion) {
+                throw new ApiError(
+                    409,
+                    "Suggestion was already processed"
+                );
+            }
+
+            acceptedSuggestion = {
+                suggestion: updatedSuggestion,
+                promotion,
+            };
+        });
+    } finally {
+        await session.endSession();
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            acceptedSuggestion,
+            "Promotion suggestion accepted successfully"
+        )
+    );
+});
+
+
+
+
+const rejectPromotionSuggestion= asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const { suggestionId } = req.params;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    if (
+        typeof suggestionId !== "string" ||
+        !mongoose.isValidObjectId(suggestionId)
+    ) {
+        throw new ApiError(400, "Invalid suggestion ID");
+    }
+
+    const suggestion = await PromotionSuggestion.findOneAndUpdate(
+        {
+            _id: suggestionId,
+            userId,
+            promotionStatus: "PENDING",
+        },
+        {
+            $set: {
+                promotionStatus: "REJECTED",
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    );
+
+    if (!suggestion) {
+        const existing = await PromotionSuggestion.findOne({
+            _id: suggestionId,
+            userId,
+        });
+
+        if (!existing) {
+            throw new ApiError(404, "Promotion suggestion not found");
+        }
+
+        throw new ApiError(
+            409,
+            "This suggestion has already been accepted or rejected"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { suggestion },
+            "Promotion suggestion rejected successfully"
+        )
+    );
+});
+
+
+const reviewPromotionSuggestion = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const { suggestionId } = req.params;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
+    if (
+        typeof suggestionId !== "string" ||
+        !mongoose.isValidObjectId(suggestionId)
+    ) {
+        throw new ApiError(400, "Invalid suggestion ID");
+    }
+
+    const {
+        brand,
+        platform,
+        amount,
+        dueDate,
+        deliverables,
+        payment,
+        campaign,
+    } = req.body;
+
+    if (
+        typeof brand !== "string" ||
+        !brand.trim() ||
+        typeof platform !== "string" ||
+        !platform.trim() ||
+        typeof amount !== "number" ||
+        !Number.isFinite(amount) ||
+        amount < 0 ||
+        typeof dueDate !== "string" ||
+        Number.isNaN(new Date(dueDate).getTime()) ||
+        !Array.isArray(deliverables) ||
+        deliverables.length === 0 ||
+        !deliverables.every(
+            (item: unknown) =>
+                typeof item === "string" && item.trim().length > 0
+        ) ||
+        typeof campaign !== "string" ||
+        !campaign.trim() ||
+        !["Pending", "Paid", "Partially Paid"].includes(payment)
+    ) {
+        throw new ApiError(400, "Invalid or incomplete promotion details");
+    }
+
+    const suggestion = await PromotionSuggestion.findOneAndUpdate(
+        {
+            _id: suggestionId,
+            userId,
+            promotionStatus: "PENDING",
+            processingStatus: "COMPLETED",
+            promotionId: null,
+        },
+        {
+            $set: {
+                parsedEmail: {
+                    brand: brand.trim(),
+                    platform: platform.trim(),
+                    amount,
+                    dueDate: new Date(dueDate),
+                    deliverables: deliverables.map(
+                        (item: string) => item.trim()
+                    ),
+                    payment,
+                    campaign: campaign.trim(),
+                },
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    );
+
+    if (!suggestion) {
+        const existing = await PromotionSuggestion.findOne({
+            _id: suggestionId,
+            userId,
+        });
+
+        if (!existing) {
+            throw new ApiError(404, "Promotion suggestion not found");
+        }
+
+        throw new ApiError(
+            409,
+            "Suggestion is not available for review"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { suggestion },
+            "Promotion suggestion reviewed successfully"
+        )
+    );
+});
+
+
+
+
+
 export {
   registerUser,
   login,
@@ -705,6 +993,11 @@ export {
   changeCurrentPassword,
   resetForgotPassword,
   testProcessSuggestion,
+  getPromotionSuggestions,
+  getPromotionSuggestionById,
+  acceptPromotionSuggestion,
+  rejectPromotionSuggestion,
+  reviewPromotionSuggestion,
 
 };
 

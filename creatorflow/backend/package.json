@@ -25,7 +25,8 @@
     "jsonwebtoken": "^9.0.3",
     "mailgen": "^2.0.36",
     "mongoose": "^9.10.0",
-    "nodemailer": "^10.0.10"
+    "nodemailer": "^10.0.10",
+    "postmark": "^5.1.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

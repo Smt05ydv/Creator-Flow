@@ -5,7 +5,7 @@ import connectDB from "./db/db.js";
 
 
 
-const PORT = Number(process.env.PORT) || 5002;
+const PORT = Number(process.env.PORT) || 5003;
 
 const startServer= async()=>{
     try {

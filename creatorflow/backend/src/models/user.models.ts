@@ -14,6 +14,7 @@ export interface IUser {
   username: string;
   email: string;
   inboundEmail:string | null;
+  inboundEmailToken?: string;
   password?: string;
   googleId?: string;
     authProvider: "local" | "google";
@@ -26,6 +27,8 @@ export interface IUser {
   emailVerificationToken?: string | undefined;
   emailVerificationExpiry?: Date | undefined;
 }
+
+
 
 export interface IUserMethods {
   isPasswordCorrect(password: string): Promise<boolean>;
@@ -81,6 +84,12 @@ const userSchema= new Schema<IUser, UserModel, IUserMethods>(
             lowercase:true,
             trim:true,
         },
+        inboundEmailToken: {
+          type: String,
+            unique: true,
+           sparse: true,
+              index: true,
+},
 
         fullname:{
             type:String,
@@ -184,8 +193,9 @@ userSchema.methods.generateRefreshToken = function () {
 
 userSchema.methods.generateInboundEmail= function(){
     const token= crypto.randomBytes(16).toString("hex");
-        return  `cf-${token}@inbox.example.com`; 
 
+    this.inboundEmailToken = token;
+        return  `f58a2cf5d03f5518fca3340e8fdb49ea+${token}@inbound.postmarkapp.com`;
 }
 
 

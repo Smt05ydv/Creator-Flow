@@ -32,6 +32,7 @@ export interface IPromotionSuggestion {
     userId:mongoose.Types.ObjectId;
     promotionStatus:PromotionStatus;
     processingStatus:ProcessingStatus;
+    processingStartedAt: Date | null;
      retryCount:number;
      lastError:string | null;
      promotionId:mongoose.Types.ObjectId | null;
@@ -51,6 +52,10 @@ const promotionSuggestionSchema= new Schema<IPromotionSuggestion,PromotionSugges
     required:true,
     index:true,
    },
+   processingStartedAt: {
+    type: Date,
+    default: null,
+},
 
    promotionStatus:{
     type:String,
@@ -65,6 +70,7 @@ const promotionSuggestionSchema= new Schema<IPromotionSuggestion,PromotionSugges
     enum:["COMPLETED","FAILED","PROCESSING","RECEIVED"],
     default:"RECEIVED",
    },
+   
 
    retryCount:{
     type:Number,
